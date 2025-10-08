@@ -37,6 +37,8 @@
         <nav class="nav" aria-label="Главная навигация">
           <ul>
             <li><a href="#dashboard">Дашборд</a></li>
+            <li><a href="#region">Регион и офисы</a></li>
+            <li><a href="#meetings">Встречи</a></li>
             <li><a href="#office">Офис 2.0</a></li>
             <li><a href="#vault">Документы</a></li>
             <li><a href="#community">Сообщество</a></li>
@@ -51,9 +53,12 @@
       </div>
     </header>
 
+    <div class="mobile-overlay" id="mobileOverlay" hidden></div>
     <nav class="mobile-nav" id="mobileNav" aria-label="Мобильная навигация" hidden>
       <ul>
         <li><a href="#dashboard">Дашборд</a></li>
+        <li><a href="#region">Регион и офисы</a></li>
+        <li><a href="#meetings">Встречи</a></li>
         <li><a href="#office">Офис 2.0</a></li>
         <li><a href="#vault">Документы</a></li>
         <li><a href="#community">Сообщество</a></li>
@@ -73,16 +78,19 @@
             <h2>Оборот (30 дней)</h2>
             <div class="kpi-value" id="turnoverValue">—</div>
             <div class="kpi-sub">обновлено: <span id="turnoverUpdated">—</span></div>
+            <span class="badge kpi-badge badge-success" id="kpiTurnoverBadge" hidden>Рост</span>
           </article>
           <article class="card kpi">
             <h2>Налоги к оплате</h2>
             <div class="kpi-value" id="taxesDue">—</div>
             <button class="btn btn-primary btn-inline" id="autoDebitBtn">Автосписание?</button>
+            <span class="badge kpi-badge badge-warning" id="kpiTaxesBadge" hidden>Срок близко</span>
           </article>
           <article class="card kpi">
             <h2>Cash Flow</h2>
             <div class="kpi-value" id="cashFlow">—</div>
             <div class="spark" id="cashSpark" aria-hidden="true"></div>
+            <span class="badge kpi-badge badge-danger" id="kpiFlowBadge" hidden>Риск</span>
           </article>
         </div>
 
@@ -94,6 +102,95 @@
           <article class="card">
             <h3>Госуслуги</h3>
             <ul class="list" id="egovStatuses"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- 1A. Регион и офисы -->
+      <section id="region" class="section">
+        <div class="section-head">
+          <h1>Регион и офисы</h1>
+          <p class="muted">Сводка по региону и карта расположения офисов</p>
+        </div>
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>Карта офисов</h3>
+            <div class="map" id="mapBox" aria-label="Карта офисов" role="img"></div>
+          </article>
+          <article class="card">
+            <h3>Список офисов</h3>
+            <div class="table-wrap">
+              <table class="table" id="officesTable" aria-label="Список офисов">
+                <thead>
+                  <tr>
+                    <th>Офис</th>
+                    <th>Адрес</th>
+                    <th>Ответственный</th>
+                    <th>Телефон</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 1B. Встречи, заметки и бронирование -->
+      <section id="meetings" class="section">
+        <div class="section-head">
+          <h1>Встречи и заметки</h1>
+          <p class="muted">Планирование встреч в офисе, заметки и бронирование</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card">
+            <h3>Календарь</h3>
+            <div class="calendar" id="calendar"></div>
+          </article>
+          <article class="card form">
+            <h3>Запланировать встречу</h3>
+            <div class="form-row">
+              <label for="meetTitle">Тема</label>
+              <input id="meetTitle" type="text" placeholder="Например: кредит для ИП" />
+            </div>
+            <div class="form-row">
+              <label for="meetDate">Дата</label>
+              <input id="meetDate" type="date" />
+            </div>
+            <div class="form-row">
+              <label for="meetTime">Время</label>
+              <input id="meetTime" type="time" />
+            </div>
+            <div class="form-row">
+              <label for="meetRoom">Переговорная</label>
+              <select id="meetRoom">
+                <option value="R1">Переговорная 1</option>
+                <option value="R2">Переговорная 2</option>
+                <option value="R3">Переговорная 3</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="meetNotes">Заметки</label>
+              <textarea id="meetNotes" rows="3" placeholder="Краткая повестка, документы, участники"></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" id="createMeetingBtn">Создать</button>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Список встреч</h3>
+            <ul class="list" id="meetingsList"></ul>
+          </article>
+        </div>
+
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>Бронирование переговорных</h3>
+            <ul class="list" id="roomsList"></ul>
+          </article>
+          <article class="card">
+            <h3>Оборудование</h3>
+            <ul class="list" id="equipmentList"></ul>
           </article>
         </div>
       </section>
