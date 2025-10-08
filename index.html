@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ef3124" />
+    <title>AlphaBiz Digital Companion — Прототип</title>
+    <meta name="description" content="Единый интерфейс для управления бизнес-жизнью: дашборд, офис 2.0, документы-сейф, бизнес-сообщество, калькулятор возможностей." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2214%22 font-size=%2216%22>🅰️</text></svg>">
+    <link rel="canonical" href="https://example.github.io/repo/" />
+    <meta property="og:title" content="AlphaBiz Digital Companion — Прототип" />
+    <meta property="og:description" content="Единый интерфейс для управления бизнес-жизнью: дашборд, офис 2.0, документы-сейф, бизнес-сообщество, калькулятор возможностей." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://example.github.io/repo/" />
+    <meta property="og:image" content="https://example.github.io/repo/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AlphaBiz Digital Companion — Прототип" />
+    <meta name="twitter:description" content="Единый интерфейс для управления бизнес-жизнью: дашборд, офис 2.0, документы-сейф, бизнес-сообщество, калькулятор возможностей." />
+    <meta name="twitter:image" content="https://example.github.io/repo/og.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">К основному содержанию</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">A</div>
+          <div class="brand-text">
+            <strong>AlphaBiz</strong>
+            <span>Digital Companion</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Главная навигация">
+          <ul>
+            <li><a href="#dashboard">Дашборд</a></li>
+            <li><a href="#office">Офис 2.0</a></li>
+            <li><a href="#vault">Документы</a></li>
+            <li><a href="#community">Сообщество</a></li>
+            <li><a href="#calculator">Калькулятор</a></li>
+          </ul>
+        </nav>
+        <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-controls="mobileNav" aria-expanded="false">
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <nav class="mobile-nav" id="mobileNav" aria-label="Мобильная навигация" hidden>
+      <ul>
+        <li><a href="#dashboard">Дашборд</a></li>
+        <li><a href="#office">Офис 2.0</a></li>
+        <li><a href="#vault">Документы</a></li>
+        <li><a href="#community">Сообщество</a></li>
+        <li><a href="#calculator">Калькулятор</a></li>
+      </ul>
+    </nav>
+
+    <main id="main" class="container">
+      <!-- 1. Бизнес‑Дашборд -->
+      <section id="dashboard" class="section">
+        <div class="section-head">
+          <h1>Бизнес‑Дашборд</h1>
+          <p class="muted">Финансы в реальном времени, уведомления и статусы госуслуг</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card kpi">
+            <h2>Оборот (30 дней)</h2>
+            <div class="kpi-value" id="turnoverValue">—</div>
+            <div class="kpi-sub">обновлено: <span id="turnoverUpdated">—</span></div>
+          </article>
+          <article class="card kpi">
+            <h2>Налоги к оплате</h2>
+            <div class="kpi-value" id="taxesDue">—</div>
+            <button class="btn btn-primary btn-inline" id="autoDebitBtn">Автосписание?</button>
+          </article>
+          <article class="card kpi">
+            <h2>Cash Flow</h2>
+            <div class="kpi-value" id="cashFlow">—</div>
+            <div class="spark" id="cashSpark" aria-hidden="true"></div>
+          </article>
+        </div>
+
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>Умные уведомления</h3>
+            <ul class="list" id="notifications"></ul>
+          </article>
+          <article class="card">
+            <h3>Госуслуги</h3>
+            <ul class="list" id="egovStatuses"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- 2. Физический офис 2.0 -->
+      <section id="office" class="section">
+        <div class="section-head">
+          <h1>Физический офис 2.0</h1>
+          <p class="muted">Запланируйте визит, система подготовит документы заранее</p>
+        </div>
+
+        <form class="card form" id="visitForm">
+          <div class="form-row">
+            <label for="goal">Цель визита</label>
+            <select id="goal" name="goal" required>
+              <option value="" disabled selected>Выберите цель</option>
+              <option value="open_ip_credit">Открыть ИП + получить кредит</option>
+              <option value="open_ip">Открыть ИП</option>
+              <option value="credit">Получить кредит</option>
+              <option value="consult_tax">Налоговая консультация</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="date">Дата визита</label>
+            <input id="date" type="date" required />
+          </div>
+          <div class="form-row">
+            <label for="docs">Подготовленные документы</label>
+            <div id="docs" class="chips"></div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Записаться</button>
+            <button type="button" class="btn" id="arGuideBtn">AR‑навигация</button>
+          </div>
+          <p class="hint" id="arHint" hidden>
+            Пройдите к зоне налогового консультанта. Ваш специалист — Мария, ждёт в переговорной 3.
+          </p>
+        </form>
+      </section>
+
+      <!-- 3. Документы‑сейф -->
+      <section id="vault" class="section">
+        <div class="section-head">
+          <h1>Документы‑сейф</h1>
+          <p class="muted">Биометрический доступ к цифровым копиям документов</p>
+        </div>
+        <article class="card">
+          <div class="form-row">
+            <label for="bioAccess">Биометрия</label>
+            <button class="btn btn-primary" id="bioAccess">Разблокировать</button>
+          </div>
+          <ul class="list" id="docsList" aria-live="polite"></ul>
+        </article>
+      </section>
+
+      <!-- 4. Бизнес‑сообщество -->
+      <section id="community" class="section">
+        <div class="section-head">
+          <h1>Бизнес‑сообщество</h1>
+          <p class="muted">Нетворкинг, партнёры и мероприятия</p>
+        </div>
+        <div class="grid grid-2">
+          <article class="card form">
+            <h3>Найдите партнёров</h3>
+            <div class="form-row">
+              <label for="partnerQuery">Запрос</label>
+              <input id="partnerQuery" type="text" placeholder="логистика, поставки, маркетинг" />
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" id="findPartnersBtn">Найти</button>
+            </div>
+            <ul class="list" id="partnersList"></ul>
+          </article>
+          <article class="card">
+            <h3>Мероприятия</h3>
+            <ul class="list" id="eventsList"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- 5. Калькулятор возможностей -->
+      <section id="calculator" class="section">
+        <div class="section-head">
+          <h1>Калькулятор возможностей</h1>
+          <p class="muted">Оценка кредита и симулятор налоговой нагрузки</p>
+        </div>
+        <div class="grid grid-2">
+          <form class="card form" id="creditForm">
+            <h3>Сколько кредита могу получить?</h3>
+            <div class="form-row">
+              <label for="avgTurnover">Средний оборот (₽/мес)</label>
+              <input id="avgTurnover" type="number" min="0" step="1000" placeholder="500000" required />
+            </div>
+            <div class="form-row">
+              <label for="marginality">Маржинальность (%)</label>
+              <input id="marginality" type="number" min="0" max="100" step="1" placeholder="20" required />
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Рассчитать</button>
+            </div>
+            <p class="result" id="creditResult">—</p>
+          </form>
+
+          <form class="card form" id="taxForm">
+            <h3>ИП или самозанятость?</h3>
+            <div class="form-row">
+              <label for="annualIncome">Годовой доход (₽)</label>
+              <input id="annualIncome" type="number" min="0" step="10000" placeholder="4000000" required />
+            </div>
+            <div class="form-row">
+              <label for="region">Регион</label>
+              <select id="region">
+                <option value="std" selected>Обычный</option>
+                <option value="preferential">Льготный</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn" type="submit">Сравнить</button>
+            </div>
+            <p class="result" id="taxResult">—</p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>2025 | Кэтмэны | "Ключ"</p>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+  </html>
+
+
