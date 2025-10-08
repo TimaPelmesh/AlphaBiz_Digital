@@ -56,14 +56,15 @@ function initDashboard() {
 }
 
 function initRegion() {
-  // Mock offices and simple map pins
+  // Mock offices and interactive map pins
   const offices = [
-    { name: 'Центральный', address: 'ул. Ленина, 10', lead: 'Иванов И.И.', phone: '+7 (900) 111-22-33', x: 28, y: 44 },
-    { name: 'Северный', address: 'пр-т Мира, 5', lead: 'Петров П.П.', phone: '+7 (900) 222-33-44', x: 62, y: 24 },
-    { name: 'Южный', address: 'ул. Победы, 21', lead: 'Сидорова А.А.', phone: '+7 (900) 333-44-55', x: 70, y: 72 }
+    { id: 'C', name: 'Центральный', address: 'ул. Ленина, 10', departments: ['Касса', 'Ипотека', 'МСП'], lead: 'Иванов И.И.', phone: '+7 (900) 111-22-33', x: 28, y: 44 },
+    { id: 'N', name: 'Северный', address: 'пр-т Мира, 5', departments: ['РКО', 'Кредиты МСП'], lead: 'Петров П.П.', phone: '+7 (900) 222-33-44', x: 62, y: 24 },
+    { id: 'S', name: 'Южный', address: 'ул. Победы, 21', departments: ['VIP', 'Консалтинг'], lead: 'Сидорова А.А.', phone: '+7 (900) 333-44-55', x: 70, y: 72 }
   ];
   const map = document.getElementById('mapBox');
   const tbody = document.querySelector('#officesTable tbody');
+  let currentPopover = null;
   if (map) {
     offices.forEach(o => {
       const pin = document.createElement('div');
@@ -71,7 +72,39 @@ function initRegion() {
       pin.style.left = o.x + '%';
       pin.style.top = o.y + '%';
       pin.title = `${o.name}: ${o.address}`;
+      pin.setAttribute('role', 'button');
+      pin.setAttribute('tabindex', '0');
+      const openPopover = () => {
+        if (currentPopover) { currentPopover.remove(); currentPopover = null; }
+        const pop = document.createElement('div');
+        pop.className = 'map-popover';
+        const tags = (o.departments || []).map(d => `<span class="tag">${d}</span>`).join(' ');
+        pop.innerHTML = `<button class="close" aria-label="Закрыть"></button><h4>${o.name}</h4><p class="muted">${o.address}</p><div class="tags">${tags}</div><p class="muted">${o.lead} · ${o.phone}</p>`;
+        const mapRect = map.getBoundingClientRect();
+        const pinRect = pin.getBoundingClientRect();
+        const relTop = pinRect.top - mapRect.top;
+        const relLeft = pinRect.left - mapRect.left;
+        const showBelow = relTop < 140 ? true : false;
+        pop.style.left = Math.max(8, Math.min(map.clientWidth - 280, relLeft - 10)) + 'px';
+        pop.style.top = (showBelow ? Math.min(map.clientHeight - 100, relTop + 16) : Math.max(8, relTop - 120)) + 'px';
+        map.appendChild(pop);
+        currentPopover = pop;
+        const closeBtn = pop.querySelector('.close');
+        closeBtn.addEventListener('click', () => { pop.remove(); currentPopover = null; });
+      };
+      pin.addEventListener('click', openPopover);
+      pin.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPopover(); }
+      });
       map.appendChild(pin);
+    });
+    document.addEventListener('click', (e) => {
+      if (!currentPopover) return;
+      if (map.contains(e.target) && (e.target.closest('.map-popover') || e.target.classList.contains('map-pin'))) return;
+      currentPopover.remove(); currentPopover = null;
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && currentPopover) { currentPopover.remove(); currentPopover = null; }
     });
   }
   if (tbody) {
@@ -412,7 +445,7 @@ function initBurger() {
     panel.hidden = true;
     btn.classList.remove('active');
     btn.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
+    document.body.classList.remove('scroll-lock');
     if (overlay) { overlay.classList.remove('visible'); overlay.hidden = true; }
     if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
       previouslyFocused.focus();
@@ -426,7 +459,7 @@ function initBurger() {
     requestAnimationFrame(() => panel.classList.add('open'));
     btn.classList.add('active');
     btn.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('scroll-lock');
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-modal', 'true');
     if (overlay) { overlay.hidden = false; requestAnimationFrame(() => overlay.classList.add('visible')); }
