@@ -63,7 +63,7 @@ function initRegion() {
     { id: 'S', name: 'Южный', address: 'ул. Победы, 21', departments: ['VIP', 'Консалтинг'], lead: 'Сидорова А.А.', phone: '+7 (900) 333-44-55', x: 70, y: 72 }
   ];
   const map = document.getElementById('mapBox');
-  const tbody = document.querySelector('#officesTable tbody');
+  const officesList = document.getElementById('officesList');
   let currentPopover = null;
   if (map) {
     offices.forEach(o => {
@@ -107,11 +107,20 @@ function initRegion() {
       if (e.key === 'Escape' && currentPopover) { currentPopover.remove(); currentPopover = null; }
     });
   }
-  if (tbody) {
+  if (officesList) {
+    officesList.innerHTML = '';
     offices.forEach(o => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${o.name}</td><td>${o.address}</td><td>${o.lead}</td><td>${o.phone}</td>`;
-      tbody.appendChild(tr);
+      const card = document.createElement('div');
+      card.className = 'office-card';
+      card.innerHTML = `
+        <div class="office-name">${o.name}</div>
+        <div class="office-address">${o.address}</div>
+        <div class="office-contact">
+          <span class="office-lead">${o.lead}</span>
+          <a href="tel:${o.phone}" class="office-phone">${o.phone}</a>
+        </div>
+      `;
+      officesList.appendChild(card);
     });
   }
 }

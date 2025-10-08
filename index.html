@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#ef3124" />
     <title>AlphaBiz Digital Companion — Прототип</title>
     <meta name="description" content="Единый интерфейс для управления бизнес-жизнью: дашборд, офис 2.0, документы-сейф, бизнес-сообщество, калькулятор возможностей." />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><text y=%2214%22 font-size=%2216%22>🅰️</text></svg>">
+    <link rel="icon" href="icon.ico" type="image/x-icon">
     <link rel="canonical" href="https://example.github.io/repo/" />
     <meta property="og:title" content="AlphaBiz Digital Companion — Прототип" />
     <meta property="og:description" content="Единый интерфейс для управления бизнес-жизнью: дашборд, офис 2.0, документы-сейф, бизнес-сообщество, калькулятор возможностей." />
@@ -28,7 +28,7 @@
     <header class="site-header">
       <div class="container header-inner">
         <div class="brand">
-          <div class="logo" aria-hidden="true">A</div>
+          <img src="logo.png" alt="AlphaBiz" class="logo" />
           <div class="brand-text">
             <strong>AlphaBiz</strong>
             <span>Digital Companion</span>
@@ -118,20 +118,8 @@
             <div class="map" id="mapBox" aria-label="Карта офисов" role="img"></div>
           </article>
           <article class="card">
-            <h3>Список офисов</h3>
-            <div class="table-wrap">
-              <table class="table" id="officesTable" aria-label="Список офисов">
-                <thead>
-                  <tr>
-                    <th>Офис</th>
-                    <th>Адрес</th>
-                    <th>Ответственный</th>
-                    <th>Телефон</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
+            <h3>Наши отделения</h3>
+            <div class="offices-list" id="officesList"></div>
           </article>
         </div>
       </section>
@@ -209,16 +197,6 @@
           </article>
         </div>
 
-        <div class="grid grid-2">
-          <article class="card">
-            <h3>Статус переговорных</h3>
-            <ul class="list" id="roomsStatusList"></ul>
-          </article>
-          <article class="card">
-            <h3>Статус оборудования</h3>
-            <ul class="list" id="equipmentStatusList"></ul>
-          </article>
-        </div>
       </section>
 
       <!-- 2. Физический офис 2.0 -->
@@ -344,6 +322,10 @@
 
     <footer class="site-footer">
       <div class="container footer-inner">
+        <div class="footer-brand">
+          <img src="logo.png" alt="AlphaBiz" class="footer-logo" />
+          <span class="footer-alpha">Alpha</span>
+        </div>
         <p>2025 | Кэтмэны | "Ключ"</p>
         <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
