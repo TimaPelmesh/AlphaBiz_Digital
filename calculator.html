@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ef3124" />
+    <title>Калькулятор возможностей — AlphaBiz Digital Companion</title>
+    <meta name="description" content="Оценка кредита и симулятор налоговой нагрузки" />
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="canonical" href="https://example.github.io/repo/calculator.html" />
+    <meta property="og:title" content="Калькулятор возможностей — AlphaBiz Digital Companion" />
+    <meta property="og:description" content="Оценка кредита и симулятор налоговой нагрузки" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://example.github.io/repo/calculator.html" />
+    <meta property="og:image" content="https://example.github.io/repo/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Калькулятор возможностей — AlphaBiz Digital Companion" />
+    <meta name="twitter:description" content="Оценка кредита и симулятор налоговой нагрузки" />
+    <meta name="twitter:image" content="https://example.github.io/repo/og.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">К основному содержанию</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <img src="logo.png" alt="AlphaBiz" class="logo" />
+          <div class="brand-text">
+            <strong>AlphaBiz</strong>
+            <span>Digital Companion</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Главная навигация">
+          <ul>
+            <li><a href="index.html" class="nav-link">Дашборд</a></li>
+            <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+            <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+            <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+            <li><a href="vault.html" class="nav-link">Документы</a></li>
+            <li><a href="community.html" class="nav-link">Сообщество</a></li>
+            <li><a href="calculator.html" class="nav-link active">Калькулятор</a></li>
+          </ul>
+        </nav>
+        <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-controls="mobileNav" aria-expanded="false">
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay" hidden></div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Мобильная навигация" hidden>
+      <ul>
+        <li><a href="index.html" class="nav-link">Дашборд</a></li>
+        <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+        <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+        <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+        <li><a href="vault.html" class="nav-link">Документы</a></li>
+        <li><a href="community.html" class="nav-link">Сообщество</a></li>
+        <li><a href="calculator.html" class="nav-link active">Калькулятор</a></li>
+      </ul>
+    </nav>
+
+    <main id="main" class="container">
+      <!-- Калькулятор возможностей -->
+      <section id="calculator" class="section">
+        <div class="section-head">
+          <h1>Калькулятор возможностей</h1>
+          <p class="muted">Оценка кредита и симулятор налоговой нагрузки</p>
+        </div>
+        <div class="grid grid-2">
+          <form class="card form" id="creditForm">
+            <h3>Сколько кредита могу получить?</h3>
+            <div class="form-row">
+              <label for="avgTurnover">Средний оборот (₽/мес)</label>
+              <input id="avgTurnover" type="number" min="0" step="1000" placeholder="500000" required />
+            </div>
+            <div class="form-row">
+              <label for="marginality">Маржинальность (%)</label>
+              <input id="marginality" type="number" min="0" max="100" step="1" placeholder="20" required />
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Рассчитать</button>
+            </div>
+            <p class="result" id="creditResult">—</p>
+          </form>
+
+          <form class="card form" id="taxForm">
+            <h3>ИП или самозанятость?</h3>
+            <div class="form-row">
+              <label for="annualIncome">Годовой доход (₽)</label>
+              <input id="annualIncome" type="number" min="0" step="10000" placeholder="4000000" required />
+            </div>
+            <div class="form-row">
+              <label for="region">Регион</label>
+              <select id="region">
+                <option value="std" selected>Обычный</option>
+                <option value="preferential">Льготный</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn" type="submit">Сравнить</button>
+            </div>
+            <p class="result" id="taxResult">—</p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img src="logo.png" alt="AlphaBiz" class="footer-logo" />
+          <span class="footer-alpha">Alpha</span>
+        </div>
+        <p>2025 | Кэтмэны | "Ключ"</p>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>

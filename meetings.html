@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ef3124" />
+    <title>Встречи и заметки — AlphaBiz Digital Companion</title>
+    <meta name="description" content="Планирование встреч в офисе, заметки и бронирование" />
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="canonical" href="https://example.github.io/repo/meetings.html" />
+    <meta property="og:title" content="Встречи и заметки — AlphaBiz Digital Companion" />
+    <meta property="og:description" content="Планирование встреч в офисе, заметки и бронирование" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://example.github.io/repo/meetings.html" />
+    <meta property="og:image" content="https://example.github.io/repo/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Встречи и заметки — AlphaBiz Digital Companion" />
+    <meta name="twitter:description" content="Планирование встреч в офисе, заметки и бронирование" />
+    <meta name="twitter:image" content="https://example.github.io/repo/og.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">К основному содержанию</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <img src="logo.png" alt="AlphaBiz" class="logo" />
+          <div class="brand-text">
+            <strong>AlphaBiz</strong>
+            <span>Digital Companion</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Главная навигация">
+          <ul>
+            <li><a href="index.html" class="nav-link">Дашборд</a></li>
+            <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+            <li><a href="meetings.html" class="nav-link active">Встречи</a></li>
+            <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+            <li><a href="vault.html" class="nav-link">Документы</a></li>
+            <li><a href="community.html" class="nav-link">Сообщество</a></li>
+            <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
+          </ul>
+        </nav>
+        <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-controls="mobileNav" aria-expanded="false">
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay" hidden></div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Мобильная навигация" hidden>
+      <ul>
+        <li><a href="index.html" class="nav-link">Дашборд</a></li>
+        <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+        <li><a href="meetings.html" class="nav-link active">Встречи</a></li>
+        <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+        <li><a href="vault.html" class="nav-link">Документы</a></li>
+        <li><a href="community.html" class="nav-link">Сообщество</a></li>
+        <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
+      </ul>
+    </nav>
+
+    <main id="main" class="container">
+      <!-- Встречи, заметки и бронирование -->
+      <section id="meetings" class="section">
+        <div class="section-head">
+          <h1>Встречи и заметки</h1>
+          <p class="muted">Планирование встреч в офисе, заметки и бронирование</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card">
+            <h3>Календарь</h3>
+            <div class="calendar" id="calendar"></div>
+          </article>
+          <article class="card">
+            <h3>Список встреч</h3>
+            <div class="meetings-header">
+              <button class="btn btn-primary" id="addMeetingBtn">+ Добавить встречу</button>
+            </div>
+            <ul class="list" id="meetingsList"></ul>
+          </article>
+          <article class="card">
+            <h3>Статистика</h3>
+            <div class="stats">
+              <div class="stat-item">
+                <span class="stat-label">Всего встреч:</span>
+                <span class="stat-value" id="totalMeetings">0</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">На этой неделе:</span>
+                <span class="stat-value" id="weekMeetings">0</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img src="logo.png" alt="AlphaBiz" class="footer-logo" />
+          <span class="footer-alpha">Alpha</span>
+        </div>
+        <p>2025 | Кэтмэны | "Ключ"</p>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+
+    <!-- Модальная форма для встреч -->
+    <div class="modal-overlay" id="meetingModal" hidden style="display: none;">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Добавить встречу</h3>
+          <button class="modal-close" id="closeMeetingModal">&times;</button>
+        </div>
+        <form class="modal-form" id="meetingForm">
+          <div class="form-row">
+            <label for="meetTitle">Тема</label>
+            <input id="meetTitle" type="text" placeholder="Например: кредит для ИП" required />
+          </div>
+          <div class="form-row">
+            <label for="meetDate">Дата</label>
+            <input id="meetDate" type="date" required />
+          </div>
+          <div class="form-row">
+            <label for="meetTime">Время</label>
+            <input id="meetTime" type="time" required />
+          </div>
+          <div class="form-row">
+            <label>Переговорные</label>
+            <div class="room-selection">
+              <div class="toggle">
+                <span>Переговорная 1</span>
+                <div class="switch" data-id="R1"></div>
+              </div>
+              <div class="toggle">
+                <span>Переговорная 2</span>
+                <div class="switch" data-id="R2"></div>
+              </div>
+              <div class="toggle">
+                <span>Переговорная 3</span>
+                <div class="switch" data-id="R3"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Оборудование</label>
+            <div class="equipment-selection">
+              <div class="toggle">
+                <span>Проектор</span>
+                <div class="switch" data-id="E1" data-kind="eq"></div>
+              </div>
+              <div class="toggle">
+                <span>Доска/флипчарт</span>
+                <div class="switch" data-id="E2" data-kind="eq"></div>
+              </div>
+              <div class="toggle">
+                <span>Видеоконференция</span>
+                <div class="switch" data-id="E3" data-kind="eq"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="meetNotes">Заметки</label>
+            <textarea id="meetNotes" rows="3" placeholder="Краткая повестка, документы, участники"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn" id="cancelMeetingBtn">Отмена</button>
+            <button type="submit" class="btn btn-primary" id="saveMeetingBtn">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>

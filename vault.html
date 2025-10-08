@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ef3124" />
+    <title>Документы-сейф — AlphaBiz Digital Companion</title>
+    <meta name="description" content="Биометрический доступ к цифровым копиям документов" />
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="canonical" href="https://example.github.io/repo/vault.html" />
+    <meta property="og:title" content="Документы-сейф — AlphaBiz Digital Companion" />
+    <meta property="og:description" content="Биометрический доступ к цифровым копиям документов" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://example.github.io/repo/vault.html" />
+    <meta property="og:image" content="https://example.github.io/repo/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Документы-сейф — AlphaBiz Digital Companion" />
+    <meta name="twitter:description" content="Биометрический доступ к цифровым копиям документов" />
+    <meta name="twitter:image" content="https://example.github.io/repo/og.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">К основному содержанию</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <img src="logo.png" alt="AlphaBiz" class="logo" />
+          <div class="brand-text">
+            <strong>AlphaBiz</strong>
+            <span>Digital Companion</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Главная навигация">
+          <ul>
+            <li><a href="index.html" class="nav-link">Дашборд</a></li>
+            <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+            <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+            <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+            <li><a href="vault.html" class="nav-link active">Документы</a></li>
+            <li><a href="community.html" class="nav-link">Сообщество</a></li>
+            <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
+          </ul>
+        </nav>
+        <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-controls="mobileNav" aria-expanded="false">
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay" hidden></div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Мобильная навигация" hidden>
+      <ul>
+        <li><a href="index.html" class="nav-link">Дашборд</a></li>
+        <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+        <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+        <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+        <li><a href="vault.html" class="nav-link active">Документы</a></li>
+        <li><a href="community.html" class="nav-link">Сообщество</a></li>
+        <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
+      </ul>
+    </nav>
+
+    <main id="main" class="container">
+      <!-- Документы‑сейф -->
+      <section id="vault" class="section">
+        <div class="section-head">
+          <h1>Документы‑сейф</h1>
+          <p class="muted">Биометрический доступ к цифровым копиям документов</p>
+        </div>
+        <article class="card">
+          <div class="form-row">
+            <label for="bioAccess">Биометрия</label>
+            <button class="btn btn-primary" id="bioAccess">Разблокировать</button>
+          </div>
+          <ul class="list" id="docsList" aria-live="polite"></ul>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <img src="logo.png" alt="AlphaBiz" class="footer-logo" />
+          <span class="footer-alpha">Alpha</span>
+        </div>
+        <p>2025 | Кэтмэны | "Ключ"</p>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>

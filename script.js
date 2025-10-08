@@ -56,73 +56,250 @@ function initDashboard() {
 }
 
 function initRegion() {
-  // Mock offices and interactive map pins
-  const offices = [
-    { id: 'C', name: 'Центральный', address: 'ул. Ленина, 10', departments: ['Касса', 'Ипотека', 'МСП'], lead: 'Иванов И.И.', phone: '+7 (900) 111-22-33', x: 28, y: 44 },
-    { id: 'N', name: 'Северный', address: 'пр-т Мира, 5', departments: ['РКО', 'Кредиты МСП'], lead: 'Петров П.П.', phone: '+7 (900) 222-33-44', x: 62, y: 24 },
-    { id: 'S', name: 'Южный', address: 'ул. Победы, 21', departments: ['VIP', 'Консалтинг'], lead: 'Сидорова А.А.', phone: '+7 (900) 333-44-55', x: 70, y: 72 }
-  ];
-  const map = document.getElementById('mapBox');
+  const mapBox = document.getElementById('mapBox');
   const officesList = document.getElementById('officesList');
-  let currentPopover = null;
-  if (map) {
-    offices.forEach(o => {
+  if (!mapBox || !officesList) return;
+
+  const offices = [
+    { 
+      id: 'O1', 
+      name: 'Центральный офис', 
+      address: 'ул. Тверская, 12, стр. 1, Москва', 
+      lead: 'Анна Петрова', 
+      phone: '+7 (495) 123-45-67', 
+      x: 35, 
+      y: 45,
+      services: ['Кредиты', 'ИП', 'Консультации'],
+      workingHours: '9:00 - 21:00'
+    },
+    { 
+      id: 'O2', 
+      name: 'Филиал "Арбат"', 
+      address: 'ул. Арбат, 25, Москва', 
+      lead: 'Михаил Сидоров', 
+      phone: '+7 (495) 234-56-78', 
+      x: 25, 
+      y: 35,
+      services: ['ИП', 'Налоги'],
+      workingHours: '10:00 - 20:00'
+    },
+    { 
+      id: 'O3', 
+      name: 'Филиал "Красная Площадь"', 
+      address: 'Красная площадь, 1, Москва', 
+      lead: 'Елена Козлова', 
+      phone: '+7 (495) 345-67-89', 
+      x: 45, 
+      y: 55,
+      services: ['VIP-обслуживание', 'Кредиты'],
+      workingHours: '8:00 - 22:00'
+    },
+    { 
+      id: 'O4', 
+      name: 'Филиал "Китай-город"', 
+      address: 'ул. Ильинка, 4, Москва', 
+      lead: 'Дмитрий Волков', 
+      phone: '+7 (495) 456-78-90', 
+      x: 55, 
+      y: 65,
+      services: ['Бизнес-кредиты', 'Консультации'],
+      workingHours: '9:00 - 19:00'
+    },
+    { 
+      id: 'O5', 
+      name: 'Филиал "Тверская"', 
+      address: 'Тверская ул., 15, Москва', 
+      lead: 'Ольга Морозова', 
+      phone: '+7 (495) 567-89-01', 
+      x: 65, 
+      y: 25,
+      services: ['ИП', 'Самозанятость'],
+      workingHours: '9:30 - 18:30'
+    }
+  ];
+
+  function paintMap() {
+    mapBox.innerHTML = '';
+    
+    // Добавляем фоновые элементы (дома и дороги)
+    addMapBackground();
+    
+    // Добавляем маркеры офисов
+    offices.forEach((office, index) => {
       const pin = document.createElement('div');
       pin.className = 'map-pin';
-      pin.style.left = o.x + '%';
-      pin.style.top = o.y + '%';
-      pin.title = `${o.name}: ${o.address}`;
+      pin.style.left = office.x + '%';
+      pin.style.top = office.y + '%';
+      pin.setAttribute('data-office', office.id);
+      pin.setAttribute('title', `${office.name}\n${office.address}`);
       pin.setAttribute('role', 'button');
       pin.setAttribute('tabindex', '0');
-      const openPopover = () => {
-        if (currentPopover) { currentPopover.remove(); currentPopover = null; }
-        const pop = document.createElement('div');
-        pop.className = 'map-popover';
-        const tags = (o.departments || []).map(d => `<span class="tag">${d}</span>`).join(' ');
-        pop.innerHTML = `<button class="close" aria-label="Закрыть"></button><h4>${o.name}</h4><p class="muted">${o.address}</p><div class="tags">${tags}</div><p class="muted">${o.lead} · ${o.phone}</p>`;
-        const mapRect = map.getBoundingClientRect();
-        const pinRect = pin.getBoundingClientRect();
-        const relTop = pinRect.top - mapRect.top;
-        const relLeft = pinRect.left - mapRect.left;
-        const showBelow = relTop < 140 ? true : false;
-        pop.style.left = Math.max(8, Math.min(map.clientWidth - 280, relLeft - 10)) + 'px';
-        pop.style.top = (showBelow ? Math.min(map.clientHeight - 100, relTop + 16) : Math.max(8, relTop - 120)) + 'px';
-        map.appendChild(pop);
-        currentPopover = pop;
-        const closeBtn = pop.querySelector('.close');
-        closeBtn.addEventListener('click', () => { pop.remove(); currentPopover = null; });
-      };
-      pin.addEventListener('click', openPopover);
-      pin.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPopover(); }
-      });
-      map.appendChild(pin);
-    });
-    document.addEventListener('click', (e) => {
-      if (!currentPopover) return;
-      if (map.contains(e.target) && (e.target.closest('.map-popover') || e.target.classList.contains('map-pin'))) return;
-      currentPopover.remove(); currentPopover = null;
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && currentPopover) { currentPopover.remove(); currentPopover = null; }
+      
+      // Добавляем номер офиса на маркер
+      const pinNumber = document.createElement('div');
+      pinNumber.className = 'pin-number';
+      pinNumber.textContent = index + 1;
+      pin.appendChild(pinNumber);
+      
+      mapBox.appendChild(pin);
     });
   }
-  if (officesList) {
+
+  function addMapBackground() {
+    // Создаем дороги
+    const roads = [
+      { type: 'horizontal', top: '20%', left: '0%', width: '100%', height: '2px' },
+      { type: 'horizontal', top: '40%', left: '0%', width: '100%', height: '2px' },
+      { type: 'horizontal', top: '60%', left: '0%', width: '100%', height: '2px' },
+      { type: 'horizontal', top: '80%', left: '0%', width: '100%', height: '2px' },
+      { type: 'vertical', top: '0%', left: '20%', width: '2px', height: '100%' },
+      { type: 'vertical', top: '0%', left: '40%', width: '2px', height: '100%' },
+      { type: 'vertical', top: '0%', left: '60%', width: '2px', height: '100%' },
+      { type: 'vertical', top: '0%', left: '80%', width: '2px', height: '100%' }
+    ];
+
+    roads.forEach(road => {
+      const roadEl = document.createElement('div');
+      roadEl.className = 'map-road';
+      roadEl.style.position = 'absolute';
+      roadEl.style.top = road.top;
+      roadEl.style.left = road.left;
+      roadEl.style.width = road.width;
+      roadEl.style.height = road.height;
+      roadEl.style.backgroundColor = '#e0e0e0';
+      roadEl.style.zIndex = '1';
+      mapBox.appendChild(roadEl);
+    });
+
+    // Создаем здания
+    const buildings = [
+      { top: '10%', left: '10%', width: '15%', height: '20%', color: '#d4d4d4' },
+      { top: '30%', left: '70%', width: '20%', height: '25%', color: '#c8c8c8' },
+      { top: '50%', left: '30%', width: '18%', height: '30%', color: '#d0d0d0' },
+      { top: '70%', left: '60%', width: '25%', height: '15%', color: '#d8d8d8' },
+      { top: '15%', left: '50%', width: '12%', height: '35%', color: '#cccccc' },
+      { top: '60%', left: '10%', width: '16%', height: '25%', color: '#d6d6d6' }
+    ];
+
+    buildings.forEach(building => {
+      const buildingEl = document.createElement('div');
+      buildingEl.className = 'map-building';
+      buildingEl.style.position = 'absolute';
+      buildingEl.style.top = building.top;
+      buildingEl.style.left = building.left;
+      buildingEl.style.width = building.width;
+      buildingEl.style.height = building.height;
+      buildingEl.style.backgroundColor = building.color;
+      buildingEl.style.borderRadius = '2px';
+      buildingEl.style.zIndex = '1';
+      mapBox.appendChild(buildingEl);
+    });
+  }
+
+  function paintOffices() {
     officesList.innerHTML = '';
-    offices.forEach(o => {
+    offices.forEach((office, index) => {
       const card = document.createElement('div');
       card.className = 'office-card';
       card.innerHTML = `
-        <div class="office-name">${o.name}</div>
-        <div class="office-address">${o.address}</div>
-        <div class="office-contact">
-          <span class="office-lead">${o.lead}</span>
-          <a href="tel:${o.phone}" class="office-phone">${o.phone}</a>
+        <div class="office-header">
+          <div class="office-number">${index + 1}</div>
+          <div class="office-name">${office.name}</div>
         </div>
+        <div class="office-address">${office.address}</div>
+        <div class="office-services">
+          ${office.services.map(service => `<span class="service-tag">${service}</span>`).join('')}
+        </div>
+        <div class="office-contact">
+          <div class="office-lead">${office.lead}</div>
+          <a href="tel:${office.phone}" class="office-phone">${office.phone}</a>
+        </div>
+        <div class="office-hours">${office.workingHours}</div>
       `;
       officesList.appendChild(card);
     });
   }
+
+  let currentPopover = null;
+
+  paintMap();
+  paintOffices();
+
+  // Map pin interactions
+  mapBox.addEventListener('click', (e) => {
+    const pin = e.target.closest('.map-pin');
+    if (!pin) return;
+    
+    const officeId = pin.getAttribute('data-office');
+    const office = offices.find(o => o.id === officeId);
+    if (!office) return;
+
+    // Удаляем существующие попапы
+    if (currentPopover) {
+      currentPopover.remove();
+      currentPopover = null;
+    }
+
+    // Create popover
+    const popover = document.createElement('div');
+    popover.className = 'map-popover';
+    popover.innerHTML = `
+      <button class="close" aria-label="Закрыть">&times;</button>
+      <h4>${office.name}</h4>
+      <p class="muted">${office.address}</p>
+      <div class="popover-services">
+        ${office.services.map(service => `<span class="tag">${service}</span>`).join('')}
+      </div>
+      <div class="popover-contact">
+        <div><strong>Руководитель:</strong> ${office.lead}</div>
+        <div><strong>Телефон:</strong> <a href="tel:${office.phone}">${office.phone}</a></div>
+        <div><strong>Часы работы:</strong> ${office.workingHours}</div>
+      </div>
+    `;
+    
+    // Position popover
+    const mapRect = mapBox.getBoundingClientRect();
+    const pinRect = pin.getBoundingClientRect();
+    const relTop = pinRect.top - mapRect.top;
+    const relLeft = pinRect.left - mapRect.left;
+    const showBelow = relTop < 140;
+    
+    popover.style.left = Math.max(8, Math.min(mapBox.clientWidth - 280, relLeft - 10)) + 'px';
+    popover.style.top = (showBelow ? Math.min(mapBox.clientHeight - 100, relTop + 16) : Math.max(8, relTop - 120)) + 'px';
+    
+    mapBox.appendChild(popover);
+    currentPopover = popover;
+    
+    const closeBtn = popover.querySelector('.close');
+    closeBtn.addEventListener('click', () => {
+      popover.remove();
+      currentPopover = null;
+    });
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+      if (popover.parentElement) {
+        popover.remove();
+        currentPopover = null;
+      }
+    }, 8000);
+  });
+
+  // Close popover when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!currentPopover) return;
+    if (mapBox.contains(e.target) && (e.target.closest('.map-popover') || e.target.classList.contains('map-pin'))) return;
+    currentPopover.remove();
+    currentPopover = null;
+  });
+
+  // Close popover on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && currentPopover) {
+      currentPopover.remove();
+      currentPopover = null;
+    }
+  });
 }
 
 function buildCalendar(container) {
@@ -170,171 +347,220 @@ function renderEvents(events) {
 function initMeetings() {
   const calendar = document.getElementById('calendar');
   if (calendar) buildCalendar(calendar);
-  const meetings = [];
-  const rooms = [
-    { id: 'R1', name: 'Переговорная 1', booked: false },
-    { id: 'R2', name: 'Переговорная 2', booked: false },
-    { id: 'R3', name: 'Переговорная 3', booked: false }
-  ];
-  const equipment = [
-    { id: 'E1', name: 'Проектор', available: true },
-    { id: 'E2', name: 'Доска/флипчарт', available: true },
-    { id: 'E3', name: 'Видеоконференция', available: false }
-  ];
-
-  const roomsStatusList = document.getElementById('roomsStatusList');
-  const equipmentStatusList = document.getElementById('equipmentStatusList');
   const meetingsList = document.getElementById('meetingsList');
+  const addBtn = document.getElementById('addMeetingBtn');
+  const modal = document.getElementById('meetingModal');
+  const closeBtn = document.getElementById('closeMeetingModal');
+  const cancelBtn = document.getElementById('cancelMeetingBtn');
+  const form = document.getElementById('meetingForm');
+  const modalTitle = document.getElementById('modalTitle');
+  const totalMeetings = document.getElementById('totalMeetings');
+  const weekMeetings = document.getElementById('weekMeetings');
+  
+  let meetings = [];
+  let editingId = null;
 
-  function paintRooms() {
-    if (!roomsStatusList) return;
-    roomsStatusList.innerHTML = '';
-    rooms.forEach(r => {
-      const li = document.createElement('li');
-      li.innerHTML = `<div class="toggle"><span>${r.name}</span><div class="switch${r.booked ? ' on' : ''}" data-id="${r.id}"></div></div>`;
-      roomsStatusList.appendChild(li);
-    });
-  }
-  function paintEquipment() {
-    if (!equipmentStatusList) return;
-    equipmentStatusList.innerHTML = '';
-    equipment.forEach(e => {
-      const li = document.createElement('li');
-      li.innerHTML = `<div class="toggle"><span>${e.name}</span><div class="switch${e.available ? ' on' : ''}" data-id="${e.id}" data-kind="eq"></div></div>`;
-      equipmentStatusList.appendChild(li);
-    });
-  }
-  function paintMeetings() {
+  function renderMeetings() {
     if (!meetingsList) return;
     meetingsList.innerHTML = '';
-    meetings.forEach(m => {
+    meetings.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+    
+    meetings.forEach((meeting) => {
       const li = document.createElement('li');
-      li.textContent = `${m.date} ${m.time} — ${m.title} (${m.room})`;
-      if (m.equipment) {
-        const small = document.createElement('div');
-        small.className = 'muted';
-        small.textContent = `Оборудование: ${m.equipment}`;
-        li.appendChild(small);
-      }
-      if (m.notes) {
-        const small = document.createElement('div');
-        small.className = 'muted';
-        small.textContent = m.notes;
-        li.appendChild(small);
-      }
+      li.className = 'meeting-item';
+      li.innerHTML = `
+        <div class="meeting-info">
+          <div class="meeting-title">${meeting.title}</div>
+          <div class="meeting-details">
+            ${meeting.date} в ${meeting.time}
+            ${meeting.rooms.length ? ` • ${meeting.rooms.join(', ')}` : ''}
+            ${meeting.equipment.length ? ` • ${meeting.equipment.join(', ')}` : ''}
+          </div>
+          ${meeting.notes ? `<div class="meeting-details">${meeting.notes}</div>` : ''}
+        </div>
+        <div class="meeting-actions">
+          <button class="btn" onclick="editMeeting(${meeting.id})">Изменить</button>
+          <button class="btn" onclick="deleteMeeting(${meeting.id})" style="color: #dc2626;">Удалить</button>
+        </div>
+      `;
       meetingsList.appendChild(li);
     });
+    
+    updateStats();
   }
 
-  paintRooms();
-  paintEquipment();
-  paintMeetings();
+  function updateStats() {
+    if (totalMeetings) totalMeetings.textContent = meetings.length;
+    
+    if (weekMeetings) {
+      const now = new Date();
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay() + 1);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      
+      const weekCount = meetings.filter(m => {
+        const meetingDate = new Date(m.date);
+        return meetingDate >= weekStart && meetingDate <= weekEnd;
+      }).length;
+      
+      weekMeetings.textContent = weekCount;
+    }
+  }
 
-  // Toggle handlers for status lists
-  roomsStatusList?.addEventListener('click', (e) => {
-    const s = e.target.closest('.switch');
-    if (!s || s.dataset.id == null) return;
-    const room = rooms.find(r => r.id === s.dataset.id);
-    if (!room) return;
-    room.booked = !room.booked;
-    s.classList.toggle('on', room.booked);
-    showToast(room.booked ? `Забронирована: ${room.name}` : `Освобождена: ${room.name}`);
+  function openModal(meeting = null) {
+    if (!modal) return;
+    
+    editingId = meeting ? meeting.id : null;
+    if (modalTitle) modalTitle.textContent = meeting ? 'Изменить встречу' : 'Добавить встречу';
+    
+    if (meeting) {
+      document.getElementById('meetTitle').value = meeting.title;
+      document.getElementById('meetDate').value = meeting.date;
+      document.getElementById('meetTime').value = meeting.time;
+      document.getElementById('meetNotes').value = meeting.notes || '';
+      
+      // Reset switches
+      document.querySelectorAll('.switch').forEach(s => s.classList.remove('on'));
+      
+      // Set selected rooms
+      meeting.rooms.forEach(roomId => {
+        const switchEl = document.querySelector(`[data-id="${roomId}"]`);
+        if (switchEl) switchEl.classList.add('on');
+      });
+      
+      // Set selected equipment
+      meeting.equipment.forEach(eqId => {
+        const switchEl = document.querySelector(`[data-id="${eqId}"]`);
+        if (switchEl) switchEl.classList.add('on');
+      });
+    } else {
+      if (form) form.reset();
+      document.querySelectorAll('.switch').forEach(s => s.classList.remove('on'));
+    }
+    
+    modal.hidden = false;
+    modal.style.display = 'flex';
+    document.body.classList.add('scroll-lock');
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    
+    // Скрываем модальное окно
+    modal.hidden = true;
+    modal.style.display = 'none';
+    
+    // Убираем блокировку скролла
+    document.body.classList.remove('scroll-lock');
+    
+    // Сбрасываем форму
+    if (form) {
+      form.reset();
+    }
+    
+    // Сбрасываем переключатели
+    document.querySelectorAll('.switch').forEach(s => s.classList.remove('on'));
+    
+    // Сбрасываем ID редактирования
+    editingId = null;
+    
+    console.log('Modal closed'); // Для отладки
+  }
+
+  function saveMeeting() {
+    const title = document.getElementById('meetTitle')?.value?.trim();
+    const date = document.getElementById('meetDate')?.value;
+    const time = document.getElementById('meetTime')?.value;
+    const notes = document.getElementById('meetNotes')?.value?.trim();
+    
+    if (!title || !date || !time) {
+      showToast('Заполните обязательные поля', 'error');
+      return;
+    }
+
+    const selectedRooms = Array.from(document.querySelectorAll('.room-selection .switch.on')).map(r => r.dataset.id);
+    const selectedEquipment = Array.from(document.querySelectorAll('.equipment-selection .switch.on')).map(e => e.dataset.id);
+
+    const meetingData = {
+      title,
+      date,
+      time,
+      notes,
+      rooms: selectedRooms,
+      equipment: selectedEquipment
+    };
+
+    if (editingId) {
+      const index = meetings.findIndex(m => m.id === editingId);
+      if (index !== -1) {
+        meetings[index] = { ...meetingData, id: editingId };
+        showToast('Встреча изменена');
+      }
+    } else {
+      const meeting = { ...meetingData, id: Date.now() };
+      meetings.push(meeting);
+      showToast('Встреча добавлена');
+    }
+
+    // Обновляем список встреч
+    renderMeetings();
+    
+    // Автоматически закрываем модальное окно после сохранения
+    closeModal();
+  }
+
+  // Global functions for inline handlers
+  window.editMeeting = function(id) {
+    const meeting = meetings.find(m => m.id === id);
+    if (meeting) openModal(meeting);
+  };
+
+  window.deleteMeeting = function(id) {
+    if (confirm('Удалить встречу?')) {
+      meetings = meetings.filter(m => m.id !== id);
+      renderMeetings();
+      showToast('Встреча удалена');
+    }
+  };
+
+  // Event listeners
+  if (addBtn) addBtn.addEventListener('click', () => openModal());
+  if (closeBtn) closeBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeModal();
   });
-  equipmentStatusList?.addEventListener('click', (e) => {
-    const s = e.target.closest('.switch');
-    if (!s || s.dataset.kind !== 'eq') return;
-    const eq = equipment.find(x => x.id === s.dataset.id);
-    if (!eq) return;
-    eq.available = !eq.available;
-    s.classList.toggle('on', eq.available);
-    showToast(eq.available ? `${eq.name}: доступно` : `${eq.name}: недоступно`);
+  if (cancelBtn) cancelBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    closeModal();
+  });
+  if (form) form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveMeeting();
   });
 
-  // Toggle handlers for form selection
+  // Close modal on overlay click
+  if (modal) modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal && !modal.hidden) {
+      e.preventDefault();
+      closeModal();
+    }
+  });
+
+  // Toggle switches
   document.addEventListener('click', (e) => {
     const s = e.target.closest('.switch');
     if (!s) return;
-    
-    // Handle room selection in form
-    if (s.closest('.room-selection')) {
-      const roomId = s.dataset.id;
-      const room = rooms.find(r => r.id === roomId);
-      if (!room) return;
-      
-      // Toggle room booking
-      room.booked = !room.booked;
-      s.classList.toggle('on', room.booked);
-      
-      // Update status list
-      paintRooms();
-    }
-    
-    // Handle equipment selection in form
-    if (s.closest('.equipment-selection')) {
-      const eqId = s.dataset.id;
-      const eq = equipment.find(x => x.id === eqId);
-      if (!eq) return;
-      
-      // Toggle equipment availability
-      eq.available = !eq.available;
-      s.classList.toggle('on', eq.available);
-      
-      // Update status list
-      paintEquipment();
-    }
+    s.classList.toggle('on');
   });
 
-  // Create meeting
-  const createBtn = document.getElementById('createMeetingBtn');
-  const titleEl = document.getElementById('meetTitle');
-  const dateEl = document.getElementById('meetDate');
-  const timeEl = document.getElementById('meetTime');
-  const notesEl = document.getElementById('meetNotes');
-  createBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    const title = (titleEl?.value || '').trim();
-    const date = (dateEl?.value || '').trim();
-    const time = (timeEl?.value || '').trim();
-    const notes = (notesEl?.value || '').trim();
-    
-    // Get selected room and equipment
-    const selectedRoom = rooms.find(r => r.booked);
-    const selectedEquipment = equipment.filter(e => e.available);
-    
-    if (!title || !date || !time) {
-      showToast('Заполните тему, дату и время');
-      return;
-    }
-    
-    if (!selectedRoom) {
-      showToast('Выберите переговорную');
-      return;
-    }
-    
-    const event = { date, title: title.slice(0, 18), kind: 'room' };
-    meetings.push({ 
-      title, 
-      date, 
-      time, 
-      room: selectedRoom.name, 
-      equipment: selectedEquipment.map(e => e.name).join(', '),
-      notes 
-    });
-    
-    renderEvents([event, ...meetings.map(m => ({ date: m.date, title: m.title.slice(0, 10), kind: 'room' }))]);
-    paintMeetings();
-    showToast('Встреча добавлена');
-    
-    // Clear form
-    titleEl.value = '';
-    notesEl.value = '';
-    
-    // Reset selections
-    rooms.forEach(r => r.booked = false);
-    equipment.forEach(e => e.available = true);
-    paintRooms();
-    paintEquipment();
-  });
+  // Initialize
+  renderMeetings();
 }
 
 function initOffice() {
@@ -451,17 +677,35 @@ function initCalculator() {
     e.preventDefault();
     const avgTurnover = Number(avgInput.value);
     const margin = Number(marginInput.value) / 100;
-    if (Number.isFinite(avgTurnover) && Number.isFinite(margin)) {
-      // Простая модель: лимит = 3 * (оборот * маржа)
-      const limit = Math.max(0, 3 * avgTurnover * margin);
-      creditResult.textContent = `Оценочный лимит: ${fmtCurrency.format(limit)}`;
-      showToast('Расчёт обновлён');
+    
+    // Валидация
+    if (!avgInput.value || !marginInput.value) {
+      showToast('Заполните все поля', 'error');
+      return;
     }
+    
+    if (!Number.isFinite(avgTurnover) || avgTurnover <= 0) {
+      showToast('Введите корректный оборот', 'error');
+      return;
+    }
+    
+    if (!Number.isFinite(margin) || margin <= 0 || margin > 1) {
+      showToast('Введите корректную маржинальность (0-100%)', 'error');
+      return;
+    }
+    
+    // Простая модель: лимит = 3 * (оборот * маржа)
+    const limit = Math.max(0, 3 * avgTurnover * margin);
+    creditResult.textContent = `Оценочный лимит: ${fmtCurrency.format(limit)}`;
+    showToast('Расчёт обновлён');
   });
   const recalc = () => {
     const avgTurnover = Number(avgInput.value);
     const margin = Number(marginInput.value) / 100;
-    if (!Number.isFinite(avgTurnover) || !Number.isFinite(margin)) return;
+    if (!Number.isFinite(avgTurnover) || !Number.isFinite(margin) || avgTurnover <= 0 || margin <= 0) {
+      creditResult.textContent = '—';
+      return;
+    }
     const limit = Math.max(0, 3 * avgTurnover * margin);
     creditResult.textContent = `Оценочный лимит: ${fmtCurrency.format(limit)}`;
   };
@@ -476,25 +720,101 @@ function initCalculator() {
     e.preventDefault();
     const income = Number(incomeInput.value);
     const region = regionSelect.value;
-    // Условная модель: ИП УСН 6% (или 4% льготно), самозанятость 6% (или 4%) до лимитов
-    const ipRate = region === 'preferential' ? 0.04 : 0.06;
-    const selfRate = region === 'preferential' ? 0.04 : 0.06;
-    const ipTax = income * ipRate;
+    
+    // Валидация
+    if (!incomeInput.value) {
+      showToast('Введите годовой доход', 'error');
+      return;
+    }
+    
+    if (!Number.isFinite(income) || income <= 0) {
+      showToast('Введите корректный доход', 'error');
+      return;
+    }
+    
+    // Правильные налоговые ставки
+    let ipRate, selfRate;
+    if (region === 'preferential') {
+      // Льготные регионы: ИП УСН 4%, самозанятость 4%
+      ipRate = 0.04;
+      selfRate = 0.04;
+    } else {
+      // Обычные регионы: ИП УСН 6%, самозанятость 6%
+      ipRate = 0.06;
+      selfRate = 0.06;
+    }
+    
+    // Дополнительные взносы для ИП (фиксированные + 1% с дохода свыше 300,000)
+    const fixedContributions = 49500; // Фиксированные взносы на 2025 год
+    const additionalContribution = income > 300000 ? (income - 300000) * 0.01 : 0;
+    const totalIpContributions = fixedContributions + additionalContribution;
+    
+    const ipTax = income * ipRate + totalIpContributions;
     const selfTax = income * selfRate;
-    const better = ipTax < selfTax ? 'ИП (УСН)' : (selfTax < ipTax ? 'Самозанятость' : 'Равно');
-    taxResult.textContent = `${better}. Налог при ИП: ${fmtCurrency.format(ipTax)}, при самозанятости: ${fmtCurrency.format(selfTax)}`;
+    
+    let better, difference;
+    if (ipTax < selfTax) {
+      better = 'ИП (УСН)';
+      difference = fmtCurrency.format(selfTax - ipTax);
+    } else if (selfTax < ipTax) {
+      better = 'Самозанятость';
+      difference = fmtCurrency.format(ipTax - selfTax);
+    } else {
+      better = 'Равно';
+      difference = '0 ₽';
+    }
+    
+    taxResult.innerHTML = `
+      <strong>${better}</strong><br>
+      ИП: ${fmtCurrency.format(ipTax)} (налог: ${fmtCurrency.format(income * ipRate)}, взносы: ${fmtCurrency.format(totalIpContributions)})<br>
+      Самозанятость: ${fmtCurrency.format(selfTax)}<br>
+      <small>Разница: ${difference}</small>
+    `;
     showToast('Сравнение обновлено');
   });
   const recomputeTax = () => {
     const income = Number(incomeInput.value);
     const region = regionSelect.value;
-    if (!Number.isFinite(income)) return;
-    const ipRate = region === 'preferential' ? 0.04 : 0.06;
-    const selfRate = region === 'preferential' ? 0.04 : 0.06;
-    const ipTax = income * ipRate;
+    
+    if (!Number.isFinite(income) || income <= 0) {
+      taxResult.textContent = '—';
+      return;
+    }
+    
+    let ipRate, selfRate;
+    if (region === 'preferential') {
+      ipRate = 0.04;
+      selfRate = 0.04;
+    } else {
+      ipRate = 0.06;
+      selfRate = 0.06;
+    }
+    
+    const fixedContributions = 49500;
+    const additionalContribution = income > 300000 ? (income - 300000) * 0.01 : 0;
+    const totalIpContributions = fixedContributions + additionalContribution;
+    
+    const ipTax = income * ipRate + totalIpContributions;
     const selfTax = income * selfRate;
-    const better = ipTax < selfTax ? 'ИП (УСН)' : (selfTax < ipTax ? 'Самозанятость' : 'Равно');
-    taxResult.textContent = `${better}. Налог при ИП: ${fmtCurrency.format(ipTax)}, при самозанятости: ${fmtCurrency.format(selfTax)}`;
+    
+    let better, difference;
+    if (ipTax < selfTax) {
+      better = 'ИП (УСН)';
+      difference = fmtCurrency.format(selfTax - ipTax);
+    } else if (selfTax < ipTax) {
+      better = 'Самозанятость';
+      difference = fmtCurrency.format(ipTax - selfTax);
+    } else {
+      better = 'Равно';
+      difference = '0 ₽';
+    }
+    
+    taxResult.innerHTML = `
+      <strong>${better}</strong><br>
+      ИП: ${fmtCurrency.format(ipTax)} (налог: ${fmtCurrency.format(income * ipRate)}, взносы: ${fmtCurrency.format(totalIpContributions)})<br>
+      Самозанятость: ${fmtCurrency.format(selfTax)}<br>
+      <small>Разница: ${difference}</small>
+    `;
   };
   incomeInput.addEventListener('input', recomputeTax);
   regionSelect.addEventListener('change', recomputeTax);
@@ -597,10 +917,10 @@ function ensureToastRoot() {
   return root;
 }
 
-function showToast(message) {
+function showToast(message, type = 'success') {
   const root = ensureToastRoot();
   const el = document.createElement('div');
-  el.className = 'toast';
+  el.className = `toast ${type === 'error' ? 'toast-error' : ''}`;
   el.setAttribute('role', 'status');
   el.textContent = message;
   root.appendChild(el);
@@ -610,14 +930,39 @@ function showToast(message) {
   }, 2200);
 }
 
+// Section modal functionality
+
 document.addEventListener('DOMContentLoaded', () => {
-  initDashboard();
-  initRegion();
-  initMeetings();
-  initOffice();
-  initVault();
-  initCommunity();
-  initCalculator();
+  // Определяем текущую страницу по URL
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  
+  // Инициализируем только нужные функции для каждой страницы
+  switch(currentPage) {
+    case 'index.html':
+    case '':
+      initDashboard();
+      break;
+    case 'region.html':
+      initRegion();
+      break;
+    case 'meetings.html':
+      initMeetings();
+      break;
+    case 'office.html':
+      initOffice();
+      break;
+    case 'vault.html':
+      initVault();
+      break;
+    case 'community.html':
+      initCommunity();
+      break;
+    case 'calculator.html':
+      initCalculator();
+      break;
+  }
+  
+  // Burger menu инициализируется на всех страницах
   initBurger();
 });
 

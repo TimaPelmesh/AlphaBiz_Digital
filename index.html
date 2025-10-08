@@ -36,13 +36,13 @@
         </div>
         <nav class="nav" aria-label="Главная навигация">
           <ul>
-            <li><a href="#dashboard">Дашборд</a></li>
-            <li><a href="#region">Регион и офисы</a></li>
-            <li><a href="#meetings">Встречи</a></li>
-            <li><a href="#office">Офис 2.0</a></li>
-            <li><a href="#vault">Документы</a></li>
-            <li><a href="#community">Сообщество</a></li>
-            <li><a href="#calculator">Калькулятор</a></li>
+            <li><a href="index.html" class="nav-link active">Дашборд</a></li>
+            <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+            <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+            <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+            <li><a href="vault.html" class="nav-link">Документы</a></li>
+            <li><a href="community.html" class="nav-link">Сообщество</a></li>
+            <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
           </ul>
         </nav>
         <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-controls="mobileNav" aria-expanded="false">
@@ -56,13 +56,13 @@
     <div class="mobile-overlay" id="mobileOverlay" hidden></div>
     <nav class="mobile-nav" id="mobileNav" aria-label="Мобильная навигация" hidden>
       <ul>
-        <li><a href="#dashboard">Дашборд</a></li>
-        <li><a href="#region">Регион и офисы</a></li>
-        <li><a href="#meetings">Встречи</a></li>
-        <li><a href="#office">Офис 2.0</a></li>
-        <li><a href="#vault">Документы</a></li>
-        <li><a href="#community">Сообщество</a></li>
-        <li><a href="#calculator">Калькулятор</a></li>
+        <li><a href="index.html" class="nav-link active">Дашборд</a></li>
+        <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+        <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+        <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+        <li><a href="vault.html" class="nav-link">Документы</a></li>
+        <li><a href="community.html" class="nav-link">Сообщество</a></li>
+        <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
       </ul>
     </nav>
 
@@ -106,218 +106,6 @@
         </div>
       </section>
 
-      <!-- 1A. Регион и офисы -->
-      <section id="region" class="section">
-        <div class="section-head">
-          <h1>Регион и офисы</h1>
-          <p class="muted">Сводка по региону и карта расположения офисов</p>
-        </div>
-        <div class="grid grid-2">
-          <article class="card">
-            <h3>Карта офисов</h3>
-            <div class="map" id="mapBox" aria-label="Карта офисов" role="img"></div>
-          </article>
-          <article class="card">
-            <h3>Наши отделения</h3>
-            <div class="offices-list" id="officesList"></div>
-          </article>
-        </div>
-      </section>
-
-      <!-- 1B. Встречи, заметки и бронирование -->
-      <section id="meetings" class="section">
-        <div class="section-head">
-          <h1>Встречи и заметки</h1>
-          <p class="muted">Планирование встреч в офисе, заметки и бронирование</p>
-        </div>
-        <div class="grid grid-3">
-          <article class="card">
-            <h3>Календарь</h3>
-            <div class="calendar" id="calendar"></div>
-          </article>
-          <article class="card form">
-            <h3>Запланировать встречу</h3>
-            <div class="form-row">
-              <label for="meetTitle">Тема</label>
-              <input id="meetTitle" type="text" placeholder="Например: кредит для ИП" />
-            </div>
-            <div class="form-row">
-              <label for="meetDate">Дата</label>
-              <input id="meetDate" type="date" />
-            </div>
-            <div class="form-row">
-              <label for="meetTime">Время</label>
-              <input id="meetTime" type="time" />
-            </div>
-            <div class="form-row">
-              <label>Переговорные</label>
-              <div class="room-selection">
-                <div class="toggle">
-                  <span>Переговорная 1</span>
-                  <div class="switch" data-id="R1"></div>
-                </div>
-                <div class="toggle">
-                  <span>Переговорная 2</span>
-                  <div class="switch" data-id="R2"></div>
-                </div>
-                <div class="toggle">
-                  <span>Переговорная 3</span>
-                  <div class="switch" data-id="R3"></div>
-                </div>
-              </div>
-            </div>
-            <div class="form-row">
-              <label>Оборудование</label>
-              <div class="equipment-selection">
-                <div class="toggle">
-                  <span>Проектор</span>
-                  <div class="switch" data-id="E1" data-kind="eq"></div>
-                </div>
-                <div class="toggle">
-                  <span>Доска/флипчарт</span>
-                  <div class="switch" data-id="E2" data-kind="eq"></div>
-                </div>
-                <div class="toggle">
-                  <span>Видеоконференция</span>
-                  <div class="switch" data-id="E3" data-kind="eq"></div>
-                </div>
-              </div>
-            </div>
-            <div class="form-row">
-              <label for="meetNotes">Заметки</label>
-              <textarea id="meetNotes" rows="3" placeholder="Краткая повестка, документы, участники"></textarea>
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" id="createMeetingBtn">Создать</button>
-            </div>
-          </article>
-          <article class="card">
-            <h3>Список встреч</h3>
-            <ul class="list" id="meetingsList"></ul>
-          </article>
-        </div>
-
-      </section>
-
-      <!-- 2. Физический офис 2.0 -->
-      <section id="office" class="section">
-        <div class="section-head">
-          <h1>Физический офис 2.0</h1>
-          <p class="muted">Запланируйте визит, система подготовит документы заранее</p>
-        </div>
-
-        <form class="card form" id="visitForm">
-          <div class="form-row">
-            <label for="goal">Цель визита</label>
-            <select id="goal" name="goal" required>
-              <option value="" disabled selected>Выберите цель</option>
-              <option value="open_ip_credit">Открыть ИП + получить кредит</option>
-              <option value="open_ip">Открыть ИП</option>
-              <option value="credit">Получить кредит</option>
-              <option value="consult_tax">Налоговая консультация</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label for="date">Дата визита</label>
-            <input id="date" type="date" required />
-          </div>
-          <div class="form-row">
-            <label for="docs">Подготовленные документы</label>
-            <div id="docs" class="chips"></div>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Записаться</button>
-            <button type="button" class="btn" id="arGuideBtn">AR‑навигация</button>
-          </div>
-          <p class="hint" id="arHint" hidden>
-            Пройдите к зоне налогового консультанта. Ваш специалист — Мария, ждёт в переговорной 3.
-          </p>
-        </form>
-      </section>
-
-      <!-- 3. Документы‑сейф -->
-      <section id="vault" class="section">
-        <div class="section-head">
-          <h1>Документы‑сейф</h1>
-          <p class="muted">Биометрический доступ к цифровым копиям документов</p>
-        </div>
-        <article class="card">
-          <div class="form-row">
-            <label for="bioAccess">Биометрия</label>
-            <button class="btn btn-primary" id="bioAccess">Разблокировать</button>
-          </div>
-          <ul class="list" id="docsList" aria-live="polite"></ul>
-        </article>
-      </section>
-
-      <!-- 4. Бизнес‑сообщество -->
-      <section id="community" class="section">
-        <div class="section-head">
-          <h1>Бизнес‑сообщество</h1>
-          <p class="muted">Нетворкинг, партнёры и мероприятия</p>
-        </div>
-        <div class="grid grid-2">
-          <article class="card form">
-            <h3>Найдите партнёров</h3>
-            <div class="form-row">
-              <label for="partnerQuery">Запрос</label>
-              <input id="partnerQuery" type="text" placeholder="логистика, поставки, маркетинг" />
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" id="findPartnersBtn">Найти</button>
-            </div>
-            <ul class="list" id="partnersList"></ul>
-          </article>
-          <article class="card">
-            <h3>Мероприятия</h3>
-            <ul class="list" id="eventsList"></ul>
-          </article>
-        </div>
-      </section>
-
-      <!-- 5. Калькулятор возможностей -->
-      <section id="calculator" class="section">
-        <div class="section-head">
-          <h1>Калькулятор возможностей</h1>
-          <p class="muted">Оценка кредита и симулятор налоговой нагрузки</p>
-        </div>
-        <div class="grid grid-2">
-          <form class="card form" id="creditForm">
-            <h3>Сколько кредита могу получить?</h3>
-            <div class="form-row">
-              <label for="avgTurnover">Средний оборот (₽/мес)</label>
-              <input id="avgTurnover" type="number" min="0" step="1000" placeholder="500000" required />
-            </div>
-            <div class="form-row">
-              <label for="marginality">Маржинальность (%)</label>
-              <input id="marginality" type="number" min="0" max="100" step="1" placeholder="20" required />
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Рассчитать</button>
-            </div>
-            <p class="result" id="creditResult">—</p>
-          </form>
-
-          <form class="card form" id="taxForm">
-            <h3>ИП или самозанятость?</h3>
-            <div class="form-row">
-              <label for="annualIncome">Годовой доход (₽)</label>
-              <input id="annualIncome" type="number" min="0" step="10000" placeholder="4000000" required />
-            </div>
-            <div class="form-row">
-              <label for="region">Регион</label>
-              <select id="region">
-                <option value="std" selected>Обычный</option>
-                <option value="preferential">Льготный</option>
-              </select>
-            </div>
-            <div class="form-actions">
-              <button class="btn" type="submit">Сравнить</button>
-            </div>
-            <p class="result" id="taxResult">—</p>
-          </form>
-        </div>
-      </section>
     </main>
 
     <footer class="site-footer">
@@ -330,6 +118,7 @@
         <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
     </footer>
+
 
     <script src="script.js" defer></script>
   </body>
