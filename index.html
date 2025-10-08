@@ -162,12 +162,38 @@
               <input id="meetTime" type="time" />
             </div>
             <div class="form-row">
-              <label for="meetRoom">Переговорная</label>
-              <select id="meetRoom">
-                <option value="R1">Переговорная 1</option>
-                <option value="R2">Переговорная 2</option>
-                <option value="R3">Переговорная 3</option>
-              </select>
+              <label>Переговорные</label>
+              <div class="room-selection">
+                <div class="toggle">
+                  <span>Переговорная 1</span>
+                  <div class="switch" data-id="R1"></div>
+                </div>
+                <div class="toggle">
+                  <span>Переговорная 2</span>
+                  <div class="switch" data-id="R2"></div>
+                </div>
+                <div class="toggle">
+                  <span>Переговорная 3</span>
+                  <div class="switch" data-id="R3"></div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Оборудование</label>
+              <div class="equipment-selection">
+                <div class="toggle">
+                  <span>Проектор</span>
+                  <div class="switch" data-id="E1" data-kind="eq"></div>
+                </div>
+                <div class="toggle">
+                  <span>Доска/флипчарт</span>
+                  <div class="switch" data-id="E2" data-kind="eq"></div>
+                </div>
+                <div class="toggle">
+                  <span>Видеоконференция</span>
+                  <div class="switch" data-id="E3" data-kind="eq"></div>
+                </div>
+              </div>
             </div>
             <div class="form-row">
               <label for="meetNotes">Заметки</label>
@@ -185,12 +211,12 @@
 
         <div class="grid grid-2">
           <article class="card">
-            <h3>Бронирование переговорных</h3>
-            <ul class="list" id="roomsList"></ul>
+            <h3>Статус переговорных</h3>
+            <ul class="list" id="roomsStatusList"></ul>
           </article>
           <article class="card">
-            <h3>Оборудование</h3>
-            <ul class="list" id="equipmentList"></ul>
+            <h3>Статус оборудования</h3>
+            <ul class="list" id="equipmentStatusList"></ul>
           </article>
         </div>
       </section>

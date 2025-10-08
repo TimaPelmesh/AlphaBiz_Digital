@@ -173,26 +173,26 @@ function initMeetings() {
     { id: 'E3', name: 'Видеоконференция', available: false }
   ];
 
-  const roomsList = document.getElementById('roomsList');
-  const equipmentList = document.getElementById('equipmentList');
+  const roomsStatusList = document.getElementById('roomsStatusList');
+  const equipmentStatusList = document.getElementById('equipmentStatusList');
   const meetingsList = document.getElementById('meetingsList');
 
   function paintRooms() {
-    if (!roomsList) return;
-    roomsList.innerHTML = '';
+    if (!roomsStatusList) return;
+    roomsStatusList.innerHTML = '';
     rooms.forEach(r => {
       const li = document.createElement('li');
       li.innerHTML = `<div class="toggle"><span>${r.name}</span><div class="switch${r.booked ? ' on' : ''}" data-id="${r.id}"></div></div>`;
-      roomsList.appendChild(li);
+      roomsStatusList.appendChild(li);
     });
   }
   function paintEquipment() {
-    if (!equipmentList) return;
-    equipmentList.innerHTML = '';
+    if (!equipmentStatusList) return;
+    equipmentStatusList.innerHTML = '';
     equipment.forEach(e => {
       const li = document.createElement('li');
       li.innerHTML = `<div class="toggle"><span>${e.name}</span><div class="switch${e.available ? ' on' : ''}" data-id="${e.id}" data-kind="eq"></div></div>`;
-      equipmentList.appendChild(li);
+      equipmentStatusList.appendChild(li);
     });
   }
   function paintMeetings() {
@@ -201,6 +201,12 @@ function initMeetings() {
     meetings.forEach(m => {
       const li = document.createElement('li');
       li.textContent = `${m.date} ${m.time} — ${m.title} (${m.room})`;
+      if (m.equipment) {
+        const small = document.createElement('div');
+        small.className = 'muted';
+        small.textContent = `Оборудование: ${m.equipment}`;
+        li.appendChild(small);
+      }
       if (m.notes) {
         const small = document.createElement('div');
         small.className = 'muted';
@@ -215,8 +221,8 @@ function initMeetings() {
   paintEquipment();
   paintMeetings();
 
-  // Toggle handlers
-  roomsList?.addEventListener('click', (e) => {
+  // Toggle handlers for status lists
+  roomsStatusList?.addEventListener('click', (e) => {
     const s = e.target.closest('.switch');
     if (!s || s.dataset.id == null) return;
     const room = rooms.find(r => r.id === s.dataset.id);
@@ -225,7 +231,7 @@ function initMeetings() {
     s.classList.toggle('on', room.booked);
     showToast(room.booked ? `Забронирована: ${room.name}` : `Освобождена: ${room.name}`);
   });
-  equipmentList?.addEventListener('click', (e) => {
+  equipmentStatusList?.addEventListener('click', (e) => {
     const s = e.target.closest('.switch');
     if (!s || s.dataset.kind !== 'eq') return;
     const eq = equipment.find(x => x.id === s.dataset.id);
@@ -235,31 +241,90 @@ function initMeetings() {
     showToast(eq.available ? `${eq.name}: доступно` : `${eq.name}: недоступно`);
   });
 
+  // Toggle handlers for form selection
+  document.addEventListener('click', (e) => {
+    const s = e.target.closest('.switch');
+    if (!s) return;
+    
+    // Handle room selection in form
+    if (s.closest('.room-selection')) {
+      const roomId = s.dataset.id;
+      const room = rooms.find(r => r.id === roomId);
+      if (!room) return;
+      
+      // Toggle room booking
+      room.booked = !room.booked;
+      s.classList.toggle('on', room.booked);
+      
+      // Update status list
+      paintRooms();
+    }
+    
+    // Handle equipment selection in form
+    if (s.closest('.equipment-selection')) {
+      const eqId = s.dataset.id;
+      const eq = equipment.find(x => x.id === eqId);
+      if (!eq) return;
+      
+      // Toggle equipment availability
+      eq.available = !eq.available;
+      s.classList.toggle('on', eq.available);
+      
+      // Update status list
+      paintEquipment();
+    }
+  });
+
   // Create meeting
   const createBtn = document.getElementById('createMeetingBtn');
   const titleEl = document.getElementById('meetTitle');
   const dateEl = document.getElementById('meetDate');
   const timeEl = document.getElementById('meetTime');
-  const roomEl = document.getElementById('meetRoom');
   const notesEl = document.getElementById('meetNotes');
   createBtn?.addEventListener('click', (e) => {
     e.preventDefault();
     const title = (titleEl?.value || '').trim();
     const date = (dateEl?.value || '').trim();
     const time = (timeEl?.value || '').trim();
-    const room = roomEl?.value || 'R1';
     const notes = (notesEl?.value || '').trim();
+    
+    // Get selected room and equipment
+    const selectedRoom = rooms.find(r => r.booked);
+    const selectedEquipment = equipment.filter(e => e.available);
+    
     if (!title || !date || !time) {
       showToast('Заполните тему, дату и время');
       return;
     }
+    
+    if (!selectedRoom) {
+      showToast('Выберите переговорную');
+      return;
+    }
+    
     const event = { date, title: title.slice(0, 18), kind: 'room' };
-    meetings.push({ title, date, time, room, notes });
+    meetings.push({ 
+      title, 
+      date, 
+      time, 
+      room: selectedRoom.name, 
+      equipment: selectedEquipment.map(e => e.name).join(', '),
+      notes 
+    });
+    
     renderEvents([event, ...meetings.map(m => ({ date: m.date, title: m.title.slice(0, 10), kind: 'room' }))]);
     paintMeetings();
     showToast('Встреча добавлена');
+    
+    // Clear form
     titleEl.value = '';
     notesEl.value = '';
+    
+    // Reset selections
+    rooms.forEach(r => r.booked = false);
+    equipment.forEach(e => e.available = true);
+    paintRooms();
+    paintEquipment();
   });
 }
 
