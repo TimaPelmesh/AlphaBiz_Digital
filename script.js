@@ -5,10 +5,70 @@ const fmtCurrency = new Intl.NumberFormat('ru-RU', { style: 'currency', currency
 
 function nowIso() { return new Date().toLocaleString('ru-RU'); }
 
-function initDashboard() {
+// Хеширование данных для безопасности
+async function hashData(data) {
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(JSON.stringify(data));
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Функция для сохранения данных с хешированием
+async function saveDataWithHash(key, data) {
+  try {
+    const hash = await hashData(data);
+    const dataWithHash = {
+      data: data,
+      hash: hash,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(key, JSON.stringify(dataWithHash));
+    return hash;
+  } catch (error) {
+    console.error('Ошибка при сохранении данных:', error);
+    return null;
+  }
+}
+
+// Функция для загрузки и проверки данных
+async function loadDataWithHash(key) {
+  try {
+    const stored = localStorage.getItem(key);
+    if (!stored) return null;
+    
+    const parsed = JSON.parse(stored);
+    if (!parsed.data || !parsed.hash) return null;
+    
+    // Проверяем целостность данных
+    const currentHash = await hashData(parsed.data);
+    if (currentHash !== parsed.hash) {
+      console.warn('Обнаружено повреждение данных для ключа:', key);
+      return null;
+    }
+    
+    return parsed.data;
+  } catch (error) {
+    console.error('Ошибка при загрузке данных:', error);
+    return null;
+  }
+}
+
+async function initDashboard() {
   const turnover = 8420000; // оборот за 30 дней
   const taxes = 356000; // налоги к оплате
   const flow = 1240000; // текущий cash flow
+  
+  // Сохраняем данные с хешированием
+  const dashboardData = {
+    turnover: turnover,
+    taxes: taxes,
+    flow: flow,
+    lastUpdated: nowIso()
+  };
+  
+  await saveDataWithHash('dashboard_data', dashboardData);
+  
   document.getElementById('turnoverValue').textContent = fmtCurrency.format(turnover);
   document.getElementById('turnoverUpdated').textContent = nowIso();
   document.getElementById('taxesDue').textContent = fmtCurrency.format(taxes);
@@ -55,7 +115,7 @@ function initDashboard() {
   });
 }
 
-function initRegion() {
+async function initRegion() {
   const mapBox = document.getElementById('mapBox');
   const officesList = document.getElementById('officesList');
   if (!mapBox || !officesList) return;
@@ -280,6 +340,9 @@ function initRegion() {
       currentModal = null;
     }
   });
+
+  // Сохраняем данные офисов с хешированием
+  await saveDataWithHash('offices_data', offices);
 }
 
 // Calendar state management
@@ -300,16 +363,9 @@ function saveCalendarDate(date) {
   localStorage.setItem('calendarDate', date.toISOString());
 }
 
-function getStoredEvents() {
-  const stored = localStorage.getItem('meetings');
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch (e) {
-      return [];
-    }
-  }
-  return [];
+async function getStoredEvents() {
+  const events = await loadDataWithHash('meetings_data');
+  return events || [];
 }
 
 function buildCalendar(container) {
@@ -348,7 +404,7 @@ function buildCalendar(container) {
   }
 }
 
-function initCalendarNavigation() {
+async function initCalendarNavigation() {
   const monthSelect = document.getElementById('monthSelect');
   const yearSelect = document.getElementById('yearSelect');
   const prevBtn = document.getElementById('prevMonth');
@@ -390,34 +446,34 @@ function initCalendarNavigation() {
   }
   
   // Event listeners
-  monthSelect.addEventListener('change', () => {
+  monthSelect.addEventListener('change', async () => {
     currentCalendarDate.setMonth(parseInt(monthSelect.value));
     saveCalendarDate(currentCalendarDate);
     buildCalendar(document.getElementById('calendar'));
-    renderEvents(getStoredEvents());
+    await renderEvents();
   });
   
-  yearSelect.addEventListener('change', () => {
+  yearSelect.addEventListener('change', async () => {
     currentCalendarDate.setFullYear(parseInt(yearSelect.value));
     saveCalendarDate(currentCalendarDate);
     buildCalendar(document.getElementById('calendar'));
-    renderEvents(getStoredEvents());
+    await renderEvents();
   });
   
-  prevBtn.addEventListener('click', () => {
+  prevBtn.addEventListener('click', async () => {
     currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
     updateSelects();
     saveCalendarDate(currentCalendarDate);
     buildCalendar(document.getElementById('calendar'));
-    renderEvents(getStoredEvents());
+    await renderEvents();
   });
   
-  nextBtn.addEventListener('click', () => {
+  nextBtn.addEventListener('click', async () => {
     currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
     updateSelects();
     saveCalendarDate(currentCalendarDate);
     buildCalendar(document.getElementById('calendar'));
-    renderEvents(getStoredEvents());
+    await renderEvents();
   });
   
   function updateSelects() {
@@ -426,11 +482,12 @@ function initCalendarNavigation() {
   }
 }
 
-function renderEvents(events) {
+async function renderEvents(events) {
   const container = document.getElementById('calendar');
   if (!container) return;
   container.querySelectorAll('.event').forEach(e => e.remove());
-  events.forEach(ev => {
+  const eventsData = events || await getStoredEvents();
+  eventsData.forEach(ev => {
     const target = container.querySelector(`.day[data-date="${ev.date}"]`);
     if (!target) return;
     const el = document.createElement('span');
@@ -440,10 +497,10 @@ function renderEvents(events) {
   });
 }
 
-function initMeetings() {
+async function initMeetings() {
   const calendar = document.getElementById('calendar');
   if (calendar) {
-    initCalendarNavigation();
+    await initCalendarNavigation();
     buildCalendar(calendar);
   }
   const meetingsList = document.getElementById('meetingsList');
@@ -456,7 +513,7 @@ function initMeetings() {
   const totalMeetings = document.getElementById('totalMeetings');
   const weekMeetings = document.getElementById('weekMeetings');
   
-  let meetings = [];
+  let meetings = await getStoredEvents();
   let editingId = null;
 
   function renderMeetings() {
@@ -567,7 +624,7 @@ function initMeetings() {
     console.log('Modal closed'); // Для отладки
   }
 
-  function saveMeeting() {
+  async function saveMeeting() {
     const title = document.getElementById('meetTitle')?.value?.trim();
     const date = document.getElementById('meetDate')?.value;
     const time = document.getElementById('meetTime')?.value;
@@ -602,6 +659,9 @@ function initMeetings() {
       showToast('Встреча добавлена');
     }
 
+    // Сохраняем данные с хешированием
+    await saveDataWithHash('meetings_data', meetings);
+
     // Обновляем список встреч
     renderMeetings();
     
@@ -615,9 +675,10 @@ function initMeetings() {
     if (meeting) openModal(meeting);
   };
 
-  window.deleteMeeting = function(id) {
+  window.deleteMeeting = async function(id) {
     if (confirm('Удалить встречу?')) {
       meetings = meetings.filter(m => m.id !== id);
+      await saveDataWithHash('meetings_data', meetings);
       renderMeetings();
       showToast('Встреча удалена');
     }
@@ -660,6 +721,7 @@ function initMeetings() {
 
   // Initialize
   renderMeetings();
+  await renderEvents();
 }
 
 function initOffice() {
