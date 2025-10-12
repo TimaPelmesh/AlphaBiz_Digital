@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ef3124" />
+    <title>О сайте — AlphaBiz Digital Companion</title>
+    <meta name="description" content="Информация о проекте AlphaBiz Digital Companion - едином интерфейсе для управления бизнес-жизнью." />
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="canonical" href="https://example.github.io/repo/about.html" />
+    <meta property="og:title" content="О сайте — AlphaBiz Digital Companion" />
+    <meta property="og:description" content="Информация о проекте AlphaBiz Digital Companion - едином интерфейсе для управления бизнес-жизнью." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://example.github.io/repo/about.html" />
+    <meta property="og:image" content="https://example.github.io/repo/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="О сайте — AlphaBiz Digital Companion" />
+    <meta name="twitter:description" content="Информация о проекте AlphaBiz Digital Companion - едином интерфейсе для управления бизнес-жизнью." />
+    <meta name="twitter:image" content="https://example.github.io/repo/og.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">К основному содержанию</a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <div class="brand">
+          <img src="logo.png" alt="AlphaBiz" class="logo" />
+          <div class="brand-text">
+            <strong>AlphaBiz</strong>
+            <span>Digital Companion</span>
+          </div>
+        </div>
+        <nav class="nav" aria-label="Главная навигация">
+          <ul>
+            <li><a href="index.html" class="nav-link">Дашборд</a></li>
+            <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+            <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+            <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+            <li><a href="vault.html" class="nav-link">Документы</a></li>
+            <li><a href="community.html" class="nav-link">Сообщество</a></li>
+            <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
+          </ul>
+        </nav>
+        <button class="burger-btn" id="burgerBtn" aria-label="Открыть меню" aria-controls="mobileNav" aria-expanded="false">
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+          <span class="burger-line"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="mobile-overlay" id="mobileOverlay" hidden></div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Мобильная навигация" hidden>
+      <ul>
+        <li><a href="index.html" class="nav-link">Дашборд</a></li>
+        <li><a href="region.html" class="nav-link">Регион и офисы</a></li>
+        <li><a href="meetings.html" class="nav-link">Встречи</a></li>
+        <li><a href="office.html" class="nav-link">Офис 2.0</a></li>
+        <li><a href="vault.html" class="nav-link">Документы</a></li>
+        <li><a href="community.html" class="nav-link">Сообщество</a></li>
+        <li><a href="calculator.html" class="nav-link">Калькулятор</a></li>
+        <li class="mobile-nav-divider"></li>
+        <li><a href="about.html" class="nav-link active">О сайте</a></li>
+        <li><a href="support.html" class="nav-link">Техподдержка</a></li>
+      </ul>
+    </nav>
+
+    <main id="main" class="container">
+      <section id="about" class="section">
+        <div class="section-head">
+          <h1>О сайте</h1>
+          <p class="muted">Информация о проекте AlphaBiz Digital Companion</p>
+        </div>
+        
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>О проекте</h3>
+            <p>AlphaBiz Digital Companion — это единый интерфейс для управления бизнес-жизнью, разработанный командой "Кэтмэны" в рамках проекта "Ключ".</p>
+            <p>Платформа объединяет в себе все необходимые инструменты для современного предпринимателя: от финансового дашборда до планирования встреч и управления документами.</p>
+          </article>
+          
+          <article class="card">
+            <h3>Основные возможности</h3>
+            <ul class="list">
+              <li>📊 <strong>Бизнес-дашборд</strong> — мониторинг финансов в реальном времени</li>
+              <li>🏢 <strong>Регион и офисы</strong> — карта офисов и контактная информация</li>
+              <li>📅 <strong>Встречи и заметки</strong> — планирование и организация встреч</li>
+              <li>🏛️ <strong>Офис 2.0</strong> — бронирование переговорных и оборудования</li>
+              <li>🔒 <strong>Документы-сейф</strong> — безопасное хранение документов</li>
+              <li>👥 <strong>Бизнес-сообщество</strong> — сеть контактов и партнеров</li>
+              <li>🧮 <strong>Калькулятор возможностей</strong> — расчеты и аналитика</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>Технологии</h3>
+            <p>Проект разработан с использованием современных веб-технологий:</p>
+            <ul class="list">
+              <li>HTML5 и CSS3 для структуры и стилизации</li>
+              <li>Vanilla JavaScript для интерактивности</li>
+              <li>Адаптивный дизайн для всех устройств</li>
+              <li>Локальное хранение данных (localStorage)</li>
+              <li>Accessibility (a11y) стандарты</li>
+            </ul>
+          </article>
+          
+          <article class="card">
+            <h3>Команда разработки</h3>
+            <p><strong>Команда "Кэтмэны"</strong></p>
+            <p>Проект "Ключ" — 2025</p>
+            <p>Создано с ❤️ для предпринимателей</p>
+            <div class="chips">
+              <span class="chip">Веб-разработка</span>
+              <span class="chip">UX/UI дизайн</span>
+              <span class="chip">Бизнес-аналитика</span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>2025 | Кэтмэны | "Ключ"</p>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>

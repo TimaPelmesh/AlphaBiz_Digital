@@ -67,8 +67,8 @@ function initRegion() {
       address: 'ул. Тверская, 12, стр. 1, Москва', 
       lead: 'Анна Петрова', 
       phone: '+7 (495) 123-45-67', 
-      x: 35, 
-      y: 45,
+      x: 18, 
+      y: 20,
       services: ['Кредиты', 'ИП', 'Консультации'],
       workingHours: '9:00 - 21:00'
     },
@@ -78,7 +78,7 @@ function initRegion() {
       address: 'ул. Арбат, 25, Москва', 
       lead: 'Михаил Сидоров', 
       phone: '+7 (495) 234-56-78', 
-      x: 25, 
+      x: 75, 
       y: 35,
       services: ['ИП', 'Налоги'],
       workingHours: '10:00 - 20:00'
@@ -89,32 +89,10 @@ function initRegion() {
       address: 'Красная площадь, 1, Москва', 
       lead: 'Елена Козлова', 
       phone: '+7 (495) 345-67-89', 
-      x: 45, 
-      y: 55,
+      x: 85, 
+      y: 75,
       services: ['VIP-обслуживание', 'Кредиты'],
       workingHours: '8:00 - 22:00'
-    },
-    { 
-      id: 'O4', 
-      name: 'Филиал "Китай-город"', 
-      address: 'ул. Ильинка, 4, Москва', 
-      lead: 'Дмитрий Волков', 
-      phone: '+7 (495) 456-78-90', 
-      x: 55, 
-      y: 65,
-      services: ['Бизнес-кредиты', 'Консультации'],
-      workingHours: '9:00 - 19:00'
-    },
-    { 
-      id: 'O5', 
-      name: 'Филиал "Тверская"', 
-      address: 'Тверская ул., 15, Москва', 
-      lead: 'Ольга Морозова', 
-      phone: '+7 (495) 567-89-01', 
-      x: 65, 
-      y: 25,
-      services: ['ИП', 'Самозанятость'],
-      workingHours: '9:30 - 18:30'
     }
   ];
 
@@ -220,7 +198,7 @@ function initRegion() {
     });
   }
 
-  let currentPopover = null;
+  let currentModal = null;
 
   paintMap();
   paintOffices();
@@ -234,99 +212,217 @@ function initRegion() {
     const office = offices.find(o => o.id === officeId);
     if (!office) return;
 
-    // Удаляем существующие попапы
-    if (currentPopover) {
-      currentPopover.remove();
-      currentPopover = null;
+    // Удаляем существующие модальные окна
+    if (currentModal) {
+      currentModal.remove();
+      currentModal = null;
     }
 
-    // Create popover
-    const popover = document.createElement('div');
-    popover.className = 'map-popover';
-    popover.innerHTML = `
-      <button class="close" aria-label="Закрыть">&times;</button>
-      <h4>${office.name}</h4>
-      <p class="muted">${office.address}</p>
-      <div class="popover-services">
-        ${office.services.map(service => `<span class="tag">${service}</span>`).join('')}
-      </div>
-      <div class="popover-contact">
-        <div><strong>Руководитель:</strong> ${office.lead}</div>
-        <div><strong>Телефон:</strong> <a href="tel:${office.phone}">${office.phone}</a></div>
-        <div><strong>Часы работы:</strong> ${office.workingHours}</div>
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'office-modal-overlay';
+    modal.innerHTML = `
+      <div class="office-modal">
+        <div class="office-modal-header">
+          <h3>${office.name}</h3>
+          <button class="office-modal-close" aria-label="Закрыть">&times;</button>
+        </div>
+        <div class="office-modal-content">
+          <div class="office-info-section">
+            <h4>Адрес</h4>
+            <p>${office.address}</p>
+          </div>
+          <div class="office-info-section">
+            <h4>Заведующий отделением</h4>
+            <p>${office.lead}</p>
+          </div>
+          <div class="office-info-section">
+            <h4>Номер телефона</h4>
+            <p><a href="tel:${office.phone}" class="office-phone-link">${office.phone}</a></p>
+          </div>
+          <div class="office-info-section">
+            <h4>Оказываемые услуги</h4>
+            <div class="office-services-list">
+              ${office.services.map(service => `<span class="office-service-tag">${service}</span>`).join('')}
+            </div>
+          </div>
+          <div class="office-info-section">
+            <h4>Часы работы</h4>
+            <p>${office.workingHours}</p>
+          </div>
+        </div>
       </div>
     `;
     
-    // Position popover
-    const mapRect = mapBox.getBoundingClientRect();
-    const pinRect = pin.getBoundingClientRect();
-    const relTop = pinRect.top - mapRect.top;
-    const relLeft = pinRect.left - mapRect.left;
-    const showBelow = relTop < 140;
+    document.body.appendChild(modal);
+    currentModal = modal;
     
-    popover.style.left = Math.max(8, Math.min(mapBox.clientWidth - 280, relLeft - 10)) + 'px';
-    popover.style.top = (showBelow ? Math.min(mapBox.clientHeight - 100, relTop + 16) : Math.max(8, relTop - 120)) + 'px';
+    const closeBtn = modal.querySelector('.office-modal-close');
+    const overlay = modal.querySelector('.office-modal-overlay');
     
-    mapBox.appendChild(popover);
-    currentPopover = popover;
-    
-    const closeBtn = popover.querySelector('.close');
     closeBtn.addEventListener('click', () => {
-      popover.remove();
-      currentPopover = null;
+      modal.remove();
+      currentModal = null;
     });
     
-    // Auto-remove after 8 seconds
-    setTimeout(() => {
-      if (popover.parentElement) {
-        popover.remove();
-        currentPopover = null;
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        modal.remove();
+        currentModal = null;
       }
-    }, 8000);
+    });
   });
 
-  // Close popover when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!currentPopover) return;
-    if (mapBox.contains(e.target) && (e.target.closest('.map-popover') || e.target.classList.contains('map-pin'))) return;
-    currentPopover.remove();
-    currentPopover = null;
-  });
-
-  // Close popover on Escape
+  // Close modal on Escape
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && currentPopover) {
-      currentPopover.remove();
-      currentPopover = null;
+    if (e.key === 'Escape' && currentModal) {
+      currentModal.remove();
+      currentModal = null;
     }
   });
 }
 
+// Calendar state management
+let currentCalendarDate = new Date();
+
+function getStoredCalendarDate() {
+  const stored = localStorage.getItem('calendarDate');
+  if (stored) {
+    const date = new Date(stored);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+  }
+  return new Date();
+}
+
+function saveCalendarDate(date) {
+  localStorage.setItem('calendarDate', date.toISOString());
+}
+
+function getStoredEvents() {
+  const stored = localStorage.getItem('meetings');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
+
 function buildCalendar(container) {
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
+  
   const first = new Date(year, month, 1);
   const last = new Date(year, month + 1, 0);
   const startWeekday = (first.getDay() + 6) % 7; // Monday=0
   const total = startWeekday + last.getDate();
   const weeks = Math.ceil(total / 7) * 7;
+  
   container.innerHTML = '';
+  
   for (let i = 0; i < weeks; i++) {
     const dayNum = i - startWeekday + 1;
     const cell = document.createElement('div');
     cell.className = 'day';
     if (dayNum >= 1 && dayNum <= last.getDate()) {
-      cell.dataset.date = new Date(year, month, dayNum).toISOString().slice(0, 10);
+      const cellDate = new Date(year, month, dayNum);
+      cell.dataset.date = cellDate.toISOString().slice(0, 10);
       const n = document.createElement('span');
       n.className = 'num';
       n.textContent = String(dayNum);
       cell.appendChild(n);
-      if (dayNum === today.getDate()) cell.classList.add('today');
+      
+      // Check if this is today
+      if (cellDate.toDateString() === today.toDateString()) {
+        cell.classList.add('today');
+      }
     } else {
       cell.style.visibility = 'hidden';
     }
     container.appendChild(cell);
+  }
+}
+
+function initCalendarNavigation() {
+  const monthSelect = document.getElementById('monthSelect');
+  const yearSelect = document.getElementById('yearSelect');
+  const prevBtn = document.getElementById('prevMonth');
+  const nextBtn = document.getElementById('nextMonth');
+  
+  if (!monthSelect || !yearSelect || !prevBtn || !nextBtn) return;
+  
+  // Load saved date or use current
+  currentCalendarDate = getStoredCalendarDate();
+  
+  // Populate month select
+  const months = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ];
+  
+  monthSelect.innerHTML = '';
+  months.forEach((month, index) => {
+    const option = document.createElement('option');
+    option.value = index;
+    option.textContent = month;
+    if (index === currentCalendarDate.getMonth()) {
+      option.selected = true;
+    }
+    monthSelect.appendChild(option);
+  });
+  
+  // Populate year select
+  const currentYear = new Date().getFullYear();
+  yearSelect.innerHTML = '';
+  for (let year = currentYear - 2; year <= currentYear + 5; year++) {
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    if (year === currentCalendarDate.getFullYear()) {
+      option.selected = true;
+    }
+    yearSelect.appendChild(option);
+  }
+  
+  // Event listeners
+  monthSelect.addEventListener('change', () => {
+    currentCalendarDate.setMonth(parseInt(monthSelect.value));
+    saveCalendarDate(currentCalendarDate);
+    buildCalendar(document.getElementById('calendar'));
+    renderEvents(getStoredEvents());
+  });
+  
+  yearSelect.addEventListener('change', () => {
+    currentCalendarDate.setFullYear(parseInt(yearSelect.value));
+    saveCalendarDate(currentCalendarDate);
+    buildCalendar(document.getElementById('calendar'));
+    renderEvents(getStoredEvents());
+  });
+  
+  prevBtn.addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    updateSelects();
+    saveCalendarDate(currentCalendarDate);
+    buildCalendar(document.getElementById('calendar'));
+    renderEvents(getStoredEvents());
+  });
+  
+  nextBtn.addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    updateSelects();
+    saveCalendarDate(currentCalendarDate);
+    buildCalendar(document.getElementById('calendar'));
+    renderEvents(getStoredEvents());
+  });
+  
+  function updateSelects() {
+    monthSelect.value = currentCalendarDate.getMonth();
+    yearSelect.value = currentCalendarDate.getFullYear();
   }
 }
 
@@ -346,7 +442,10 @@ function renderEvents(events) {
 
 function initMeetings() {
   const calendar = document.getElementById('calendar');
-  if (calendar) buildCalendar(calendar);
+  if (calendar) {
+    initCalendarNavigation();
+    buildCalendar(calendar);
+  }
   const meetingsList = document.getElementById('meetingsList');
   const addBtn = document.getElementById('addMeetingBtn');
   const modal = document.getElementById('meetingModal');
