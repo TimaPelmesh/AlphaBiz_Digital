@@ -76,15 +76,90 @@
           <h1>Документы‑сейф</h1>
           <p class="muted">Биометрический доступ к цифровым копиям документов</p>
         </div>
-        <article class="card">
-          <div class="form-row">
-            <label for="bioAccess">Биометрия</label>
-            <button class="btn btn-primary" id="bioAccess">Разблокировать</button>
+        
+        <div class="vault-container">
+          <div class="vault-card" id="vaultCard">
+            <div class="vault-header">
+              <div class="vault-title">
+                <h3>Безопасное хранилище</h3>
+                <p>Доступ по биометрии</p>
+              </div>
+            </div>
+            
+            <div class="biometric-section">
+              <div class="biometric-scanner" id="biometricScanner">
+                <div class="scanner-frame">
+                  <div class="scanner-overlay" id="scannerOverlay">
+                    <div class="scanner-line" id="scannerLine"></div>
+                  </div>
+                  <div class="scanner-icon">👤</div>
+                </div>
+              </div>
+              
+              <button class="btn btn-primary biometric-btn" id="bioAccess">
+                <span class="btn-icon">🔐</span>
+                <span class="btn-text">Разблокировать сейф</span>
+              </button>
+            </div>
+            
+            <div class="vault-content" id="vaultContent" style="display: none;">
+              <div class="vault-success">
+                <div class="success-icon">✅</div>
+                <h4>Доступ разрешен</h4>
+                <p>Ваши документы готовы к просмотру</p>
+              </div>
+              
+              <div class="documents-section">
+                <h4>Доступные документы</h4>
+                <ul class="documents-list" id="docsList" aria-live="polite"></ul>
+              </div>
+              
+              <div class="vault-actions">
+                <button class="btn" id="lockVault">
+                  <span class="btn-icon">🔒</span>
+                  Заблокировать сейф
+                </button>
+              </div>
+            </div>
           </div>
-          <ul class="list" id="docsList" aria-live="polite"></ul>
-        </article>
+        </div>
       </section>
     </main>
+
+    <!-- Плавающая кнопка чата -->
+    <div class="chat-widget" id="chatWidget">
+      <button class="chat-toggle-btn" id="chatToggleBtn" aria-label="Открыть чат с AI">
+        <span class="chat-icon">💬</span>
+        <span class="chat-badge" id="chatBadge">1</span>
+      </button>
+      
+      <div class="chat-popup" id="chatPopup" style="display: none;">
+        <div class="chat-popup-header">
+          <div class="chat-popup-info">
+            <h4>AI Ассистент</h4>
+            <span class="chat-popup-status">онлайн</span>
+          </div>
+          <button class="chat-popup-close" id="chatPopupClose">&times;</button>
+        </div>
+        
+        <div class="chat-popup-messages" id="chatPopupMessages">
+          <div class="message ai-message">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+              <p>Привет! Я AI ассистент AlphaBiz. Чем могу помочь?</p>
+              <span class="message-time">только что</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chat-popup-input">
+          <form class="chat-popup-form" id="chatPopupForm">
+            <input type="text" id="chatPopupInput" placeholder="Введите ваш вопрос..." autocomplete="off" />
+            <button type="submit" class="chat-popup-send">Отправить</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <footer class="site-footer">
       <div class="container footer-inner">

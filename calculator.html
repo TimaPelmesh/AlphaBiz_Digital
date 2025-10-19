@@ -76,44 +76,149 @@
           <h1>Калькулятор возможностей</h1>
           <p class="muted">Оценка кредита и симулятор налоговой нагрузки</p>
         </div>
-        <div class="grid grid-2">
-          <form class="card form" id="creditForm">
-            <h3>Сколько кредита могу получить?</h3>
-            <div class="form-row">
-              <label for="avgTurnover">Средний оборот (₽/мес)</label>
-              <input id="avgTurnover" type="number" min="0" step="1000" placeholder="500000" required />
+        
+        <div class="calculator-tabs">
+          <button class="calculator-tab active" data-tab="credit">Кредитный калькулятор</button>
+          <button class="calculator-tab" data-tab="tax">Налоговый калькулятор</button>
+        </div>
+        
+        <div class="calculator-content">
+          <div class="calculator-panel active" id="creditPanel">
+            <div class="calculator-card">
+              <div class="calculator-header">
+                <div class="calculator-title">
+                  <h3>Сколько сумма кредита доступна?</h3>
+                  <p>Рассчитайте максимальную сумму кредита на основе вашего оборота</p>
+                </div>
+              </div>
+              
+              <form class="calculator-form" id="creditForm">
+                <div class="form-group">
+                  <label for="avgTurnover" class="form-label">
+                    <span class="label-text">Средний оборот</span>
+                    <span class="label-hint">в месяц</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <input id="avgTurnover" type="number" min="0" step="1000" placeholder="500000" required />
+                    <span class="input-suffix">₽</span>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="marginality" class="form-label">
+                    <span class="label-text">Маржинальность</span>
+                    <span class="label-hint">от оборота</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <input id="marginality" type="number" min="0" max="100" step="1" placeholder="20" required />
+                    <span class="input-suffix">%</span>
+                  </div>
+                </div>
+                
+                <div class="form-actions">
+                  <button class="btn btn-primary calculator-btn" type="submit">
+                    Рассчитать сумму
+                  </button>
+                </div>
+                
+                <div class="calculator-result" id="creditResult">
+                  <div class="result-placeholder">
+                    <span class="result-icon">📊</span>
+                    <span class="result-text">Введите данные для расчета</span>
+                  </div>
+                </div>
+              </form>
             </div>
-            <div class="form-row">
-              <label for="marginality">Маржинальность (%)</label>
-              <input id="marginality" type="number" min="0" max="100" step="1" placeholder="20" required />
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" type="submit">Рассчитать</button>
-            </div>
-            <p class="result" id="creditResult">—</p>
-          </form>
+          </div>
 
-          <form class="card form" id="taxForm">
-            <h3>ИП или самозанятость?</h3>
-            <div class="form-row">
-              <label for="annualIncome">Годовой доход (₽)</label>
-              <input id="annualIncome" type="number" min="0" step="10000" placeholder="4000000" required />
+          <div class="calculator-panel" id="taxPanel">
+            <div class="calculator-card">
+              <div class="calculator-header">
+                <div class="calculator-title">
+                  <h3>ИП или самозанятость?</h3>
+                  <p>Сравните налоговую нагрузку для разных форм ведения бизнеса</p>
+                </div>
+              </div>
+              
+              <form class="calculator-form" id="taxForm">
+                <div class="form-group">
+                  <label for="annualIncome" class="form-label">
+                    <span class="label-text">Годовой доход</span>
+                    <span class="label-hint">ожидаемый</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <input id="annualIncome" type="number" min="0" step="10000" placeholder="4000000" required />
+                    <span class="input-suffix">₽</span>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="region" class="form-label">
+                    <span class="label-text">Регион</span>
+                    <span class="label-hint">налогообложения</span>
+                  </label>
+                  <div class="select-wrapper">
+                    <select id="region">
+                      <option value="std" selected>Обычный регион</option>
+                      <option value="preferential">Льготный регион</option>
+                    </select>
+                    <div class="select-arrow"></div>
+                  </div>
+                </div>
+                
+                <div class="form-actions">
+                  <button class="btn btn-primary calculator-btn" type="submit">
+                    Сравнить налоги
+                  </button>
+                </div>
+                
+                <div class="calculator-result" id="taxResult">
+                  <div class="result-placeholder">
+                    <span class="result-icon">📈</span>
+                    <span class="result-text">Введите данные для сравнения</span>
+                  </div>
+                </div>
+              </form>
             </div>
-            <div class="form-row">
-              <label for="region">Регион</label>
-              <select id="region">
-                <option value="std" selected>Обычный</option>
-                <option value="preferential">Льготный</option>
-              </select>
-            </div>
-            <div class="form-actions">
-              <button class="btn" type="submit">Сравнить</button>
-            </div>
-            <p class="result" id="taxResult">—</p>
-          </form>
+          </div>
         </div>
       </section>
     </main>
+
+    <!-- Плавающая кнопка чата -->
+    <div class="chat-widget" id="chatWidget">
+      <button class="chat-toggle-btn" id="chatToggleBtn" aria-label="Открыть чат с AI">
+        <span class="chat-icon">💬</span>
+        <span class="chat-badge" id="chatBadge">1</span>
+      </button>
+      
+      <div class="chat-popup" id="chatPopup" style="display: none;">
+        <div class="chat-popup-header">
+          <div class="chat-popup-info">
+            <h4>AI Ассистент</h4>
+            <span class="chat-popup-status">онлайн</span>
+          </div>
+          <button class="chat-popup-close" id="chatPopupClose">&times;</button>
+        </div>
+        
+        <div class="chat-popup-messages" id="chatPopupMessages">
+          <div class="message ai-message">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+              <p>Привет! Я AI ассистент AlphaBiz. Чем могу помочь?</p>
+              <span class="message-time">только что</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chat-popup-input">
+          <form class="chat-popup-form" id="chatPopupForm">
+            <input type="text" id="chatPopupInput" placeholder="Введите ваш вопрос..." autocomplete="off" />
+            <button type="submit" class="chat-popup-send">Отправить</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <footer class="site-footer">
       <div class="container footer-inner">

@@ -774,24 +774,162 @@ function initOffice() {
 }
 
 function initVault() {
-  const btn = document.getElementById('bioAccess');
-  const listEl = document.getElementById('docsList');
-  btn.addEventListener('click', (e) => {
-    e.preventDefault();
-    // Имитация биометрии WebAuthn
+  const bioBtn = document.getElementById('bioAccess');
+  const scannerFrame = document.getElementById('biometricScanner');
+  const scannerOverlay = document.getElementById('scannerOverlay');
+  const scannerLine = document.getElementById('scannerLine');
+  const vaultContent = document.getElementById('vaultContent');
+  const docsList = document.getElementById('docsList');
+  const lockBtn = document.getElementById('lockVault');
+  
+  let isScanning = false;
+  let isUnlocked = false;
+  
+  // Документы для отображения
+  const documents = [
+    { 
+      name: 'Устав компании.pdf', 
+      updated: 'вчера',
+      icon: '📄',
+      type: 'PDF',
+      size: '2.3 МБ'
+    },
+    { 
+      name: 'Выписка ЕГРИП.pdf', 
+      updated: '3 дня назад',
+      icon: '📋',
+      type: 'PDF',
+      size: '1.8 МБ'
+    },
+    { 
+      name: 'Договор аренды.pdf', 
+      updated: 'неделю назад',
+      icon: '🏢',
+      type: 'PDF',
+      size: '3.1 МБ'
+    },
+    { 
+      name: 'Лицензия на деятельность.pdf', 
+      updated: '2 недели назад',
+      icon: '📜',
+      type: 'PDF',
+      size: '1.2 МБ'
+    },
+    { 
+      name: 'Справка об отсутствии задолженностей.pdf', 
+      updated: 'месяц назад',
+      icon: '✅',
+      type: 'PDF',
+      size: '0.8 МБ'
+    }
+  ];
+  
+  function startScanning() {
+    if (isScanning || isUnlocked) return;
+    
+    isScanning = true;
+    bioBtn.disabled = true;
+    bioBtn.querySelector('.btn-text').textContent = 'Сканирование...';
+    
+    // Активируем анимацию сканирования
+    scannerFrame.classList.add('scanning');
+    scannerOverlay.classList.add('active');
+    
+    // Имитируем процесс сканирования
     setTimeout(() => {
-      listEl.innerHTML = '';
-      const docs = [
-        { name: 'Устав компании.pdf', updated: 'вчера' },
-        { name: 'Выписка ЕГРИП.pdf', updated: '3 дня назад' },
-        { name: 'Договор аренды.pdf', updated: 'неделю назад' }
-      ];
-      docs.forEach(d => {
+      completeScanning();
+    }, 4000);
+  }
+  
+  function completeScanning() {
+    // Останавливаем анимацию
+    scannerFrame.classList.remove('scanning');
+    scannerOverlay.classList.remove('active');
+    
+    // Скрываем кнопку и показываем контент
+    bioBtn.style.display = 'none';
+    vaultContent.style.display = 'block';
+    
+    // Загружаем документы
+    loadDocuments();
+    
+    isScanning = false;
+    isUnlocked = true;
+    
+    showToast('Биометрическая аутентификация успешна');
+  }
+  
+  function loadDocuments() {
+    docsList.innerHTML = '';
+    
+    documents.forEach((doc, index) => {
+      setTimeout(() => {
         const li = document.createElement('li');
-        li.textContent = `${d.name} · обновлено ${d.updated}`;
-        listEl.appendChild(li);
-      });
-    }, 400);
+        li.className = 'document-item';
+        li.style.opacity = '0';
+        li.style.transform = 'translateY(20px)';
+        
+        li.innerHTML = `
+          <div class="document-icon">${doc.icon}</div>
+          <div class="document-info">
+            <div class="document-name">${doc.name}</div>
+            <div class="document-meta">
+              ${doc.type} • ${doc.size} • обновлено ${doc.updated}
+            </div>
+          </div>
+        `;
+        
+        docsList.appendChild(li);
+        
+        // Анимация появления
+        setTimeout(() => {
+          li.style.transition = 'all 0.3s ease';
+          li.style.opacity = '1';
+          li.style.transform = 'translateY(0)';
+        }, 50);
+      }, index * 150);
+    });
+  }
+  
+  function lockVault() {
+    isUnlocked = false;
+    vaultContent.style.display = 'none';
+    bioBtn.style.display = 'flex';
+    bioBtn.disabled = false;
+    bioBtn.querySelector('.btn-text').textContent = 'Разблокировать сейф';
+    
+    // Очищаем список документов
+    docsList.innerHTML = '';
+    
+    showToast('Сейф заблокирован');
+  }
+  
+  // Обработчики событий
+  bioBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    startScanning();
+  });
+  
+  if (lockBtn) {
+    lockBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      lockVault();
+    });
+  }
+  
+  // Добавляем hover эффект для сканера
+  scannerFrame.addEventListener('mouseenter', () => {
+    if (!isScanning && !isUnlocked) {
+      scannerFrame.style.borderColor = '#d1d5db';
+      scannerFrame.style.transform = 'scale(1.02)';
+    }
+  });
+  
+  scannerFrame.addEventListener('mouseleave', () => {
+    if (!isScanning && !isUnlocked) {
+      scannerFrame.style.borderColor = '#e5e7eb';
+      scannerFrame.style.transform = 'scale(1)';
+    }
   });
 }
 
@@ -830,10 +968,72 @@ function initCommunity() {
 }
 
 function initCalculator() {
+  // Инициализация табов
+  const tabs = document.querySelectorAll('.calculator-tab');
+  const panels = document.querySelectorAll('.calculator-panel');
+  
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetTab = tab.dataset.tab;
+      
+      // Убираем активный класс со всех табов и панелей
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      
+      // Добавляем активный класс к выбранному табу и панели
+      tab.classList.add('active');
+      const targetPanel = document.getElementById(targetTab + 'Panel');
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+    });
+  });
+
+  // Кредитный калькулятор
   const creditForm = document.getElementById('creditForm');
   const creditResult = document.getElementById('creditResult');
   const avgInput = document.getElementById('avgTurnover');
   const marginInput = document.getElementById('marginality');
+  
+  function updateCreditResult() {
+    const avgTurnover = Number(avgInput.value);
+    const margin = Number(marginInput.value) / 100;
+    
+    if (!Number.isFinite(avgTurnover) || !Number.isFinite(margin) || avgTurnover <= 0 || margin <= 0) {
+      creditResult.innerHTML = `
+        <div class="result-placeholder">
+          <span class="result-icon">📊</span>
+          <span class="result-text">Введите данные для расчета</span>
+        </div>
+      `;
+      creditResult.classList.remove('has-result');
+      return;
+    }
+    
+    const limit = Math.max(0, 3 * avgTurnover * margin);
+    const monthlyPayment = limit * 0.08; // Примерная ставка 8% годовых
+    
+    creditResult.innerHTML = `
+      <div class="result-content">
+        <div class="result-main">
+          <div class="result-value">${fmtCurrency.format(limit)}</div>
+          <div class="result-label">Максимальная сумма кредита</div>
+        </div>
+        <div class="result-details">
+          <div class="result-detail">
+            <span class="detail-label">Ежемесячный платеж:</span>
+            <span class="detail-value">${fmtCurrency.format(monthlyPayment)}</span>
+          </div>
+          <div class="result-detail">
+            <span class="detail-label">Ставка:</span>
+            <span class="detail-value">8% годовых</span>
+          </div>
+        </div>
+      </div>
+    `;
+    creditResult.classList.add('has-result');
+  }
+  
   creditForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const avgTurnover = Number(avgInput.value);
@@ -855,32 +1055,99 @@ function initCalculator() {
       return;
     }
     
-    // Простая модель: лимит = 3 * (оборот * маржа)
-    const limit = Math.max(0, 3 * avgTurnover * margin);
-    creditResult.textContent = `Оценочный лимит: ${fmtCurrency.format(limit)}`;
+    updateCreditResult();
     showToast('Расчёт обновлён');
   });
-  const recalc = () => {
-    const avgTurnover = Number(avgInput.value);
-    const margin = Number(marginInput.value) / 100;
-    if (!Number.isFinite(avgTurnover) || !Number.isFinite(margin) || avgTurnover <= 0 || margin <= 0) {
-      creditResult.textContent = '—';
-      return;
-    }
-    const limit = Math.max(0, 3 * avgTurnover * margin);
-    creditResult.textContent = `Оценочный лимит: ${fmtCurrency.format(limit)}`;
-  };
-  avgInput.addEventListener('input', recalc);
-  marginInput.addEventListener('input', recalc);
+  
+  avgInput.addEventListener('input', updateCreditResult);
+  marginInput.addEventListener('input', updateCreditResult);
 
+  // Налоговый калькулятор
   const taxForm = document.getElementById('taxForm');
   const taxResult = document.getElementById('taxResult');
   const incomeInput = document.getElementById('annualIncome');
   const regionSelect = document.getElementById('region');
+  
+  function updateTaxResult() {
+    const income = Number(incomeInput.value);
+    const region = regionSelect.value;
+    
+    if (!Number.isFinite(income) || income <= 0) {
+      taxResult.innerHTML = `
+        <div class="result-placeholder">
+          <span class="result-icon">📈</span>
+          <span class="result-text">Введите данные для сравнения</span>
+        </div>
+      `;
+      taxResult.classList.remove('has-result');
+      return;
+    }
+    
+    // Правильные налоговые ставки
+    let ipRate, selfRate;
+    if (region === 'preferential') {
+      ipRate = 0.04;
+      selfRate = 0.04;
+    } else {
+      ipRate = 0.06;
+      selfRate = 0.06;
+    }
+    
+    // Дополнительные взносы для ИП
+    const fixedContributions = 49500;
+    const additionalContribution = income > 300000 ? (income - 300000) * 0.01 : 0;
+    const totalIpContributions = fixedContributions + additionalContribution;
+    
+    const ipTax = income * ipRate + totalIpContributions;
+    const selfTax = income * selfRate;
+    
+    let better, difference, betterClass;
+    if (ipTax < selfTax) {
+      better = 'ИП (УСН)';
+      difference = fmtCurrency.format(selfTax - ipTax);
+      betterClass = 'ip-better';
+    } else if (selfTax < ipTax) {
+      better = 'Самозанятость';
+      difference = fmtCurrency.format(ipTax - selfTax);
+      betterClass = 'self-better';
+    } else {
+      better = 'Равно';
+      difference = '0 ₽';
+      betterClass = 'equal';
+    }
+    
+    taxResult.innerHTML = `
+      <div class="result-content">
+        <div class="result-main ${betterClass}">
+          <div class="result-value">${better}</div>
+          <div class="result-label">Рекомендуемый вариант</div>
+        </div>
+        <div class="result-details">
+          <div class="result-detail">
+            <span class="detail-label">ИП (УСН):</span>
+            <span class="detail-value">${fmtCurrency.format(ipTax)}</span>
+            <div class="detail-breakdown">
+              <small>Налог: ${fmtCurrency.format(income * ipRate)}</small>
+              <small>Взносы: ${fmtCurrency.format(totalIpContributions)}</small>
+            </div>
+          </div>
+          <div class="result-detail">
+            <span class="detail-label">Самозанятость:</span>
+            <span class="detail-value">${fmtCurrency.format(selfTax)}</span>
+          </div>
+          <div class="result-detail highlight">
+            <span class="detail-label">Экономия:</span>
+            <span class="detail-value">${difference}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    taxResult.classList.add('has-result');
+  }
+  
   taxForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const income = Number(incomeInput.value);
-    const region = regionSelect.value;
     
     // Валидация
     if (!incomeInput.value) {
@@ -893,92 +1160,399 @@ function initCalculator() {
       return;
     }
     
-    // Правильные налоговые ставки
-    let ipRate, selfRate;
-    if (region === 'preferential') {
-      // Льготные регионы: ИП УСН 4%, самозанятость 4%
-      ipRate = 0.04;
-      selfRate = 0.04;
-    } else {
-      // Обычные регионы: ИП УСН 6%, самозанятость 6%
-      ipRate = 0.06;
-      selfRate = 0.06;
-    }
-    
-    // Дополнительные взносы для ИП (фиксированные + 1% с дохода свыше 300,000)
-    const fixedContributions = 49500; // Фиксированные взносы на 2025 год
-    const additionalContribution = income > 300000 ? (income - 300000) * 0.01 : 0;
-    const totalIpContributions = fixedContributions + additionalContribution;
-    
-    const ipTax = income * ipRate + totalIpContributions;
-    const selfTax = income * selfRate;
-    
-    let better, difference;
-    if (ipTax < selfTax) {
-      better = 'ИП (УСН)';
-      difference = fmtCurrency.format(selfTax - ipTax);
-    } else if (selfTax < ipTax) {
-      better = 'Самозанятость';
-      difference = fmtCurrency.format(ipTax - selfTax);
-    } else {
-      better = 'Равно';
-      difference = '0 ₽';
-    }
-    
-    taxResult.innerHTML = `
-      <strong>${better}</strong><br>
-      ИП: ${fmtCurrency.format(ipTax)} (налог: ${fmtCurrency.format(income * ipRate)}, взносы: ${fmtCurrency.format(totalIpContributions)})<br>
-      Самозанятость: ${fmtCurrency.format(selfTax)}<br>
-      <small>Разница: ${difference}</small>
-    `;
+    updateTaxResult();
     showToast('Сравнение обновлено');
   });
-  const recomputeTax = () => {
-    const income = Number(incomeInput.value);
-    const region = regionSelect.value;
+  
+  incomeInput.addEventListener('input', updateTaxResult);
+  regionSelect.addEventListener('change', updateTaxResult);
+}
+
+function initSupport() {
+  const supportForm = document.getElementById('supportForm');
+  
+  // Обработка отправки заявки
+  supportForm.addEventListener('submit', (e) => {
+    e.preventDefault();
     
-    if (!Number.isFinite(income) || income <= 0) {
-      taxResult.textContent = '—';
+    const email = document.getElementById('supportEmail').value;
+    const subject = document.getElementById('supportSubject').value;
+    const message = document.getElementById('supportMessage').value;
+    
+    // Валидация
+    if (!email || !subject || !message) {
+      showToast('Заполните все поля', 'error');
       return;
     }
     
-    let ipRate, selfRate;
-    if (region === 'preferential') {
-      ipRate = 0.04;
-      selfRate = 0.04;
-    } else {
-      ipRate = 0.06;
-      selfRate = 0.06;
-    }
+    // Имитация отправки заявки
+    const submitBtn = supportForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Отправка...';
+    submitBtn.disabled = true;
     
-    const fixedContributions = 49500;
-    const additionalContribution = income > 300000 ? (income - 300000) * 0.01 : 0;
-    const totalIpContributions = fixedContributions + additionalContribution;
-    
-    const ipTax = income * ipRate + totalIpContributions;
-    const selfTax = income * selfRate;
-    
-    let better, difference;
-    if (ipTax < selfTax) {
-      better = 'ИП (УСН)';
-      difference = fmtCurrency.format(selfTax - ipTax);
-    } else if (selfTax < ipTax) {
-      better = 'Самозанятость';
-      difference = fmtCurrency.format(ipTax - selfTax);
-    } else {
-      better = 'Равно';
-      difference = '0 ₽';
-    }
-    
-    taxResult.innerHTML = `
-      <strong>${better}</strong><br>
-      ИП: ${fmtCurrency.format(ipTax)} (налог: ${fmtCurrency.format(income * ipRate)}, взносы: ${fmtCurrency.format(totalIpContributions)})<br>
-      Самозанятость: ${fmtCurrency.format(selfTax)}<br>
-      <small>Разница: ${difference}</small>
-    `;
+    setTimeout(() => {
+      // Показываем уведомление об успешной отправке
+      showToast('Заявка успешно отправлена! Номер заявки: #' + Math.floor(Math.random() * 10000), 'success');
+      
+      // Сбрасываем форму
+      supportForm.reset();
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+    }, 2000);
+  });
+}
+
+function initChatWidget() {
+  const chatToggleBtn = document.getElementById('chatToggleBtn');
+  const chatPopup = document.getElementById('chatPopup');
+  const chatPopupClose = document.getElementById('chatPopupClose');
+  const chatPopupForm = document.getElementById('chatPopupForm');
+  const chatPopupInput = document.getElementById('chatPopupInput');
+  const chatPopupMessages = document.getElementById('chatPopupMessages');
+  const chatBadge = document.getElementById('chatBadge');
+  
+  let isOpen = false;
+  let messageCount = 0;
+  
+  // AI ответы для чата
+  const aiResponses = {
+    'привет': 'Привет! Рад помочь вам с AlphaBiz Digital Companion. Что вас интересует?',
+    'как': 'Я могу помочь вам с различными вопросами по платформе. Расскажите подробнее о вашей проблеме.',
+    'ошибка': 'Понимаю, что у вас возникла ошибка. Можете описать, что именно происходит? Это поможет мне лучше понять проблему.',
+    'калькулятор': 'Калькулятор позволяет рассчитать кредитные возможности и сравнить налоговую нагрузку. Введите ваши данные в соответствующие поля.',
+    'документы': 'В разделе "Документы" вы можете безопасно хранить важные файлы. Доступ осуществляется через биометрическую аутентификацию.',
+    'встречи': 'В разделе "Встречи" вы можете планировать встречи, бронировать переговорные и управлять расписанием.',
+    'дашборд': 'Дашборд показывает ключевые метрики вашего бизнеса: оборот, налоги и денежный поток в реальном времени.',
+    'мобильный': 'Платформа полностью адаптирована для мобильных устройств. Все функции доступны на смартфонах и планшетах.',
+    'безопасность': 'Все ваши данные хранятся локально в браузере и не передаются на внешние серверы. Это обеспечивает максимальную безопасность.',
+    'экспорт': 'Для экспорта данных используйте функции сохранения в соответствующих разделах. Рекомендуем регулярно делать резервные копии.',
+    'default': 'Интересный вопрос! Я постараюсь помочь. Можете уточнить детали или задать более конкретный вопрос?'
   };
-  incomeInput.addEventListener('input', recomputeTax);
-  regionSelect.addEventListener('change', recomputeTax);
+  
+  // Открыть/закрыть чат
+  chatToggleBtn.addEventListener('click', () => {
+    if (isOpen) {
+      chatPopup.style.display = 'none';
+      isOpen = false;
+    } else {
+      chatPopup.style.display = 'flex';
+      chatPopupInput.focus();
+      isOpen = true;
+      // Убираем бейдж при открытии
+      chatBadge.style.display = 'none';
+    }
+  });
+  
+  // Закрыть чат
+  chatPopupClose.addEventListener('click', () => {
+    chatPopup.style.display = 'none';
+    isOpen = false;
+  });
+  
+  // Закрыть чат по клику на оверлей (только на мобильных)
+  chatPopup.addEventListener('click', (e) => {
+    if (e.target === chatPopup) {
+      chatPopup.style.display = 'none';
+      isOpen = false;
+    }
+  });
+  
+  // Обработка отправки сообщения
+  chatPopupForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const message = chatPopupInput.value.trim();
+    if (!message) return;
+    
+    // Добавляем сообщение пользователя
+    addMessage(message, 'user');
+    chatPopupInput.value = '';
+    
+    // Показываем индикатор печати
+    showTypingIndicator();
+    
+    // Генерируем ответ AI
+    setTimeout(() => {
+      hideTypingIndicator();
+      const aiResponse = generateAIResponse(message);
+      addMessage(aiResponse, 'ai');
+    }, 1500 + Math.random() * 1000);
+  });
+  
+  // Добавление сообщения в чат
+  function addMessage(text, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const avatar = sender === 'user' ? '👤' : '🤖';
+    const time = new Date().toLocaleTimeString('ru-RU', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+    
+    messageDiv.innerHTML = `
+      <div class="message-avatar">${avatar}</div>
+      <div class="message-content">
+        <p>${text}</p>
+        <span class="message-time">${time}</span>
+      </div>
+    `;
+    
+    chatPopupMessages.appendChild(messageDiv);
+    chatPopupMessages.scrollTop = chatPopupMessages.scrollHeight;
+    
+    // Увеличиваем счетчик сообщений
+    if (sender === 'user') {
+      messageCount++;
+      if (!isOpen) {
+        chatBadge.textContent = messageCount;
+        chatBadge.style.display = 'flex';
+      }
+    }
+  }
+  
+  // Показать индикатор печати
+  function showTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai-message typing-indicator';
+    typingDiv.id = 'typingIndicator';
+    
+    typingDiv.innerHTML = `
+      <div class="message-avatar">🤖</div>
+      <div class="message-content">
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    `;
+    
+    chatPopupMessages.appendChild(typingDiv);
+    chatPopupMessages.scrollTop = chatPopupMessages.scrollHeight;
+  }
+  
+  // Скрыть индикатор печати
+  function hideTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+      typingIndicator.remove();
+    }
+  }
+  
+  // Генерация ответа AI
+  function generateAIResponse(userMessage) {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // Поиск ключевых слов в сообщении
+    for (const [keyword, response] of Object.entries(aiResponses)) {
+      if (lowerMessage.includes(keyword)) {
+        return response;
+      }
+    }
+    
+    return aiResponses.default;
+  }
+  
+  // Обработка Enter в поле ввода чата
+  chatPopupInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      chatPopupForm.dispatchEvent(new Event('submit'));
+    }
+  });
+  
+  // Имитация нового сообщения от AI (для демонстрации бейджа)
+  setTimeout(() => {
+    if (!isOpen) {
+      chatBadge.style.display = 'flex';
+    }
+  }, 5000);
+}
+
+function initCommunity() {
+  const findPartnersBtn = document.getElementById('findPartnersBtn');
+  const partnerQuery = document.getElementById('partnerQuery');
+  const partnersList = document.getElementById('partnersList');
+  const addEventBtn = document.getElementById('addEventBtn');
+  const filterEventsBtn = document.getElementById('filterEventsBtn');
+  const eventsList = document.getElementById('eventsList');
+  const newsActions = document.querySelectorAll('.news-action');
+  const discussionJoins = document.querySelectorAll('.discussion-join');
+  
+  // Данные для партнеров
+  const partnersData = [
+    { name: 'ООО "Логистик Плюс"', description: 'Грузоперевозки по России', category: 'логистика', rating: 4.8 },
+    { name: 'ИП Иванов А.В.', description: 'Поставки канцелярии', category: 'поставки', rating: 4.5 },
+    { name: 'Агентство "Маркетинг Про"', description: 'SMM и реклама', category: 'маркетинг', rating: 4.9 },
+    { name: 'ООО "ТехСервис"', description: 'IT-поддержка бизнеса', category: 'технологии', rating: 4.7 },
+    { name: 'ИП Петрова М.С.', description: 'Бухгалтерские услуги', category: 'бухгалтерия', rating: 4.6 }
+  ];
+  
+  // Данные для мероприятий
+  const eventsData = [
+    { title: 'Нетворкинг для предпринимателей', date: '2025-01-15', time: '18:00', participants: 24 },
+    { title: 'Семинар по налогообложению', date: '2025-01-20', time: '14:00', participants: 18 },
+    { title: 'Встреча инвесторов', date: '2025-01-25', time: '19:00', participants: 12 }
+  ];
+  
+  // Поиск партнеров
+  findPartnersBtn.addEventListener('click', () => {
+    const query = partnerQuery.value.toLowerCase().trim();
+    if (!query) {
+      showToast('Введите запрос для поиска', 'error');
+      return;
+    }
+    
+    const filteredPartners = partnersData.filter(partner => 
+      partner.name.toLowerCase().includes(query) ||
+      partner.description.toLowerCase().includes(query) ||
+      partner.category.toLowerCase().includes(query)
+    );
+    
+    displayPartners(filteredPartners);
+    showToast(`Найдено партнеров: ${filteredPartners.length}`);
+  });
+  
+  // Отображение партнеров
+  function displayPartners(partners) {
+    partnersList.innerHTML = '';
+    
+    if (partners.length === 0) {
+      partnersList.innerHTML = '<li class="muted">Партнеры не найдены</li>';
+      return;
+    }
+    
+    partners.forEach(partner => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="partner-item">
+          <div class="partner-info">
+            <strong>${partner.name}</strong>
+            <p>${partner.description}</p>
+            <span class="partner-rating">Рейтинг: ${partner.rating}/5</span>
+          </div>
+          <button class="btn btn-sm partner-contact">Связаться</button>
+        </div>
+      `;
+      partnersList.appendChild(li);
+    });
+    
+    // Добавляем обработчики для кнопок связи
+    partnersList.querySelectorAll('.partner-contact').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showToast('Функция связи будет доступна в следующих версиях');
+      });
+    });
+  }
+  
+  // Добавление события
+  addEventBtn.addEventListener('click', () => {
+    const title = prompt('Название мероприятия:');
+    if (!title) return;
+    
+    const date = prompt('Дата (YYYY-MM-DD):');
+    if (!date) return;
+    
+    const time = prompt('Время (HH:MM):');
+    if (!time) return;
+    
+    const newEvent = {
+      title,
+      date,
+      time,
+      participants: 0
+    };
+    
+    eventsData.unshift(newEvent);
+    displayEvents();
+    showToast('Мероприятие добавлено');
+  });
+  
+  // Фильтр мероприятий
+  filterEventsBtn.addEventListener('click', () => {
+    const filter = prompt('Фильтр по названию:');
+    if (!filter) return;
+    
+    const filteredEvents = eventsData.filter(event => 
+      event.title.toLowerCase().includes(filter.toLowerCase())
+    );
+    
+    displayEvents(filteredEvents);
+    showToast(`Найдено мероприятий: ${filteredEvents.length}`);
+  });
+  
+  // Отображение мероприятий
+  function displayEvents(events = eventsData) {
+    eventsList.innerHTML = '';
+    
+    if (events.length === 0) {
+      eventsList.innerHTML = '<li class="muted">Мероприятия не найдены</li>';
+      return;
+    }
+    
+    events.forEach(event => {
+      const li = document.createElement('li');
+      const eventDate = new Date(event.date);
+      const formattedDate = eventDate.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long'
+      });
+      
+      li.innerHTML = `
+        <div class="event-item">
+          <div class="event-info">
+            <strong>${event.title}</strong>
+            <p>${formattedDate} в ${event.time}</p>
+            <span class="event-participants">Участников: ${event.participants}</span>
+          </div>
+          <button class="btn btn-sm event-join">Записаться</button>
+        </div>
+      `;
+      eventsList.appendChild(li);
+    });
+    
+    // Добавляем обработчики для кнопок записи
+    eventsList.querySelectorAll('.event-join').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showToast('Запись на мероприятие будет доступна в следующих версиях');
+      });
+    });
+  }
+  
+  // Лайки новостей
+  newsActions.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('liked')) {
+        btn.classList.remove('liked');
+        btn.textContent = 'Нравится';
+        showToast('Лайк убран');
+      } else {
+        btn.classList.add('liked');
+        btn.textContent = 'Нравится ✓';
+        showToast('Лайк добавлен');
+      }
+    });
+  });
+  
+  // Присоединение к обсуждениям
+  discussionJoins.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('joined')) {
+        btn.classList.remove('joined');
+        btn.textContent = 'Присоединиться';
+        showToast('Вы покинули обсуждение');
+      } else {
+        btn.classList.add('joined');
+        btn.textContent = 'Присоединились ✓';
+        showToast('Вы присоединились к обсуждению');
+      }
+    });
+  });
+  
+  // Инициализация - показываем все мероприятия
+  displayEvents();
 }
 
 function initBurger() {
@@ -1121,10 +1695,14 @@ document.addEventListener('DOMContentLoaded', () => {
     case 'calculator.html':
       initCalculator();
       break;
+    case 'support.html':
+      initSupport();
+      break;
   }
   
-  // Burger menu инициализируется на всех страницах
+  // Burger menu и чат инициализируются на всех страницах
   initBurger();
+  initChatWidget();
 });
 
 

@@ -111,6 +111,41 @@
 
     </main>
 
+    <!-- Плавающая кнопка чата -->
+    <div class="chat-widget" id="chatWidget">
+      <button class="chat-toggle-btn" id="chatToggleBtn" aria-label="Открыть чат с AI">
+        <span class="chat-icon">💬</span>
+        <span class="chat-badge" id="chatBadge">1</span>
+      </button>
+      
+      <div class="chat-popup" id="chatPopup" style="display: none;">
+        <div class="chat-popup-header">
+          <div class="chat-popup-info">
+            <h4>AI Ассистент</h4>
+            <span class="chat-popup-status">онлайн</span>
+          </div>
+          <button class="chat-popup-close" id="chatPopupClose">&times;</button>
+        </div>
+        
+        <div class="chat-popup-messages" id="chatPopupMessages">
+          <div class="message ai-message">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+              <p>Привет! Я AI ассистент AlphaBiz. Чем могу помочь?</p>
+              <span class="message-time">только что</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chat-popup-input">
+          <form class="chat-popup-form" id="chatPopupForm">
+            <input type="text" id="chatPopupInput" placeholder="Введите ваш вопрос..." autocomplete="off" />
+            <button type="submit" class="chat-popup-send">Отправить</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <footer class="site-footer">
       <div class="container footer-inner">
         <div class="footer-content">

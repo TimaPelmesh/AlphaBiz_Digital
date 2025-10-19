@@ -88,13 +88,99 @@
             </div>
             <ul class="list" id="partnersList"></ul>
           </article>
+          
           <article class="card">
             <h3>Мероприятия</h3>
+            <div class="events-controls">
+              <button class="btn btn-sm" id="addEventBtn">Добавить событие</button>
+              <button class="btn btn-sm" id="filterEventsBtn">Фильтр</button>
+            </div>
             <ul class="list" id="eventsList"></ul>
+          </article>
+        </div>
+        
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>Бизнес-новости</h3>
+            <div class="news-feed" id="newsFeed">
+              <div class="news-item">
+                <div class="news-content">
+                  <h4>Новые налоговые льготы для малого бизнеса</h4>
+                  <p>С 2025 года вводятся дополнительные льготы для ИП и ООО с оборотом до 10 млн рублей</p>
+                  <span class="news-time">2 часа назад</span>
+                </div>
+                <button class="btn btn-sm news-action" data-action="like">Нравится</button>
+              </div>
+              <div class="news-item">
+                <div class="news-content">
+                  <h4>Банки снижают ставки по кредитам</h4>
+                  <p>Средняя ставка по кредитам для бизнеса снизилась на 1.5% в декабре</p>
+                  <span class="news-time">5 часов назад</span>
+                </div>
+                <button class="btn btn-sm news-action" data-action="like">Нравится</button>
+              </div>
+            </div>
+          </article>
+          
+          <article class="card">
+            <h3>Активные обсуждения</h3>
+            <div class="discussions-list" id="discussionsList">
+              <div class="discussion-item">
+                <div class="discussion-content">
+                  <h4>Как выбрать банк для бизнеса?</h4>
+                  <p>Обсуждают 12 участников</p>
+                  <span class="discussion-time">1 час назад</span>
+                </div>
+                <button class="btn btn-sm discussion-join">Присоединиться</button>
+              </div>
+              <div class="discussion-item">
+                <div class="discussion-content">
+                  <h4>Опыт работы с самозанятостью</h4>
+                  <p>Обсуждают 8 участников</p>
+                  <span class="discussion-time">3 часа назад</span>
+                </div>
+                <button class="btn btn-sm discussion-join">Присоединиться</button>
+              </div>
+            </div>
           </article>
         </div>
       </section>
     </main>
+
+    <!-- Плавающая кнопка чата -->
+    <div class="chat-widget" id="chatWidget">
+      <button class="chat-toggle-btn" id="chatToggleBtn" aria-label="Открыть чат с AI">
+        <span class="chat-icon">💬</span>
+        <span class="chat-badge" id="chatBadge">1</span>
+      </button>
+      
+      <div class="chat-popup" id="chatPopup" style="display: none;">
+        <div class="chat-popup-header">
+          <div class="chat-popup-info">
+            <h4>AI Ассистент</h4>
+            <span class="chat-popup-status">онлайн</span>
+          </div>
+          <button class="chat-popup-close" id="chatPopupClose">&times;</button>
+        </div>
+        
+        <div class="chat-popup-messages" id="chatPopupMessages">
+          <div class="message ai-message">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+              <p>Привет! Я AI ассистент AlphaBiz. Чем могу помочь?</p>
+              <span class="message-time">только что</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="chat-popup-input">
+          <form class="chat-popup-form" id="chatPopupForm">
+            <input type="text" id="chatPopupInput" placeholder="Введите ваш вопрос..." autocomplete="off" />
+            <button type="submit" class="chat-popup-send">Отправить</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <footer class="site-footer">
       <div class="container footer-inner">
