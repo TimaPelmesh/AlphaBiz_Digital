@@ -729,6 +729,7 @@ function initOffice() {
   const docsWrap = document.getElementById('docs');
   const arBtn = document.getElementById('arGuideBtn');
   const arHint = document.getElementById('arHint');
+  const appointmentsList = document.getElementById('appointmentsList');
 
   const presets = {
     open_ip_credit: ['Заявление на регистрацию ИП', 'Паспорт', 'Заявка на кредит', 'Выписка по счёту'],
@@ -736,6 +737,33 @@ function initOffice() {
     credit: ['Заявка на кредит', 'Бизнес-план', 'Отчёт о прибылях и убытках'],
     consult_tax: ['История операций', 'Выписка по счёту']
   };
+
+  // Данные об услугах
+  const services = {
+    ip: {
+      name: 'Открытие ИП',
+      duration: '30-45 мин',
+      description: 'Полное сопровождение регистрации'
+    },
+    credit: {
+      name: 'Кредитование',
+      duration: '20-30 мин',
+      description: 'Подбор и оформление кредита'
+    },
+    tax: {
+      name: 'Налоговые консультации',
+      duration: '15-25 мин',
+      description: 'Помощь с налогообложением'
+    },
+    docs: {
+      name: 'Документооборот',
+      duration: '10-20 мин',
+      description: 'Подготовка и подача документов'
+    }
+  };
+
+  // Загружаем сохраненные записи
+  let appointments = JSON.parse(localStorage.getItem('office_appointments') || '[]');
 
   goalEl.addEventListener('change', () => {
     docsWrap.innerHTML = '';
@@ -771,6 +799,231 @@ function initOffice() {
   arBtn.addEventListener('click', () => {
     arHint.hidden = false;
   });
+
+  // Обработка записи на услуги
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('service-btn')) {
+      const serviceId = e.target.dataset.service;
+      const service = services[serviceId];
+      
+      if (!service) return;
+
+      // Проверяем, не записан ли уже пользователь на эту услугу
+      const existingAppointment = appointments.find(apt => 
+        apt.serviceId === serviceId && 
+        new Date(apt.date) > new Date()
+      );
+
+      if (existingAppointment) {
+        showToast('Вы уже записаны на эту услугу');
+        return;
+      }
+
+      // Показываем модальное окно для выбора времени
+      showServiceBookingModal(serviceId, service);
+    }
+  });
+
+  // Функция показа модального окна записи
+  function showServiceBookingModal(serviceId, service) {
+    // Создаем модальное окно
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Запись на услугу: ${service.name}</h3>
+          <button class="modal-close" aria-label="Закрыть">&times;</button>
+        </div>
+        <div class="modal-form">
+          <div class="form-row">
+            <label for="serviceDate">Дата</label>
+            <input type="date" id="serviceDate" required min="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div class="form-row">
+            <label for="serviceTime">Время</label>
+            <select id="serviceTime" required>
+              <option value="">Выберите время</option>
+              <option value="09:00">09:00</option>
+              <option value="10:00">10:00</option>
+              <option value="11:00">11:00</option>
+              <option value="12:00">12:00</option>
+              <option value="13:00">13:00</option>
+              <option value="14:00">14:00</option>
+              <option value="15:00">15:00</option>
+              <option value="16:00">16:00</option>
+              <option value="17:00">17:00</option>
+              <option value="18:00">18:00</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="serviceNotes">Дополнительные пожелания (необязательно)</label>
+            <textarea id="serviceNotes" placeholder="Опишите ваши пожелания..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn" id="cancelServiceBooking">Отмена</button>
+            <button type="button" class="btn btn-primary" id="confirmServiceBooking">Записаться</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.body.classList.add('scroll-lock');
+
+    // Обработчики событий
+    const closeBtn = modal.querySelector('.modal-close');
+    const cancelBtn = modal.querySelector('#cancelServiceBooking');
+    const confirmBtn = modal.querySelector('#confirmServiceBooking');
+
+    const closeModal = () => {
+      modal.remove();
+      document.body.classList.remove('scroll-lock');
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    confirmBtn.addEventListener('click', () => {
+      const date = modal.querySelector('#serviceDate').value;
+      const time = modal.querySelector('#serviceTime').value;
+      const notes = modal.querySelector('#serviceNotes').value;
+
+      if (!date || !time) {
+        showToast('Заполните все обязательные поля', 'error');
+        return;
+      }
+
+      // Создаем новую запись
+      const appointment = {
+        id: Date.now(),
+        serviceId: serviceId,
+        serviceName: service.name,
+        date: date,
+        time: time,
+        duration: service.duration,
+        notes: notes,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      appointments.push(appointment);
+      localStorage.setItem('office_appointments', JSON.stringify(appointments));
+
+      // Обновляем отображение
+      renderAppointments();
+      
+      // Обновляем кнопку услуги
+      updateServiceButton(serviceId, true);
+
+      showToast('Запись успешно создана!');
+      closeModal();
+    });
+
+    // Закрытие по клику на оверлей
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Закрытие по Escape
+    document.addEventListener('keydown', function escapeHandler(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    });
+  }
+
+  // Функция обновления кнопки услуги
+  function updateServiceButton(serviceId, isBooked) {
+    const serviceItem = document.querySelector(`[data-service="${serviceId}"]`);
+    const button = serviceItem.querySelector('.service-btn');
+    
+    if (isBooked) {
+      button.textContent = 'Записано ✓';
+      button.classList.add('booked');
+      button.disabled = true;
+    } else {
+      button.textContent = 'Записаться';
+      button.classList.remove('booked');
+      button.disabled = false;
+    }
+  }
+
+  // Функция отображения записей
+  function renderAppointments() {
+    if (!appointmentsList) return;
+
+    appointmentsList.innerHTML = '';
+    
+    if (appointments.length === 0) {
+      appointmentsList.innerHTML = '<div class="muted">У вас пока нет записей</div>';
+      return;
+    }
+
+    // Сортируем записи по дате
+    const sortedAppointments = appointments.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+
+    sortedAppointments.forEach(appointment => {
+      const appointmentEl = document.createElement('div');
+      appointmentEl.className = 'appointment-item';
+      
+      const statusClass = appointment.status === 'confirmed' ? 'confirmed' : 'pending';
+      const statusText = appointment.status === 'confirmed' ? 'Подтверждено' : 'Ожидает подтверждения';
+      
+      const appointmentDate = new Date(appointment.date).toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      appointmentEl.innerHTML = `
+        <div class="appointment-info">
+          <div class="appointment-title">${appointment.serviceName}</div>
+          <div class="appointment-date">${appointmentDate}, ${appointment.time}</div>
+          <div class="appointment-status ${statusClass}">${statusText}</div>
+          ${appointment.notes ? `<div class="appointment-notes">${appointment.notes}</div>` : ''}
+        </div>
+        <div class="appointment-actions">
+          <button class="btn btn-sm appointment-cancel" data-id="${appointment.id}">Отменить</button>
+        </div>
+      `;
+
+      appointmentsList.appendChild(appointmentEl);
+    });
+
+    // Добавляем обработчики для кнопок отмены
+    appointmentsList.querySelectorAll('.appointment-cancel').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const appointmentId = parseInt(e.target.dataset.id);
+        if (confirm('Отменить запись?')) {
+          appointments = appointments.filter(apt => apt.id !== appointmentId);
+          localStorage.setItem('office_appointments', JSON.stringify(appointments));
+          renderAppointments();
+          
+          // Обновляем кнопки услуг
+          updateAllServiceButtons();
+          
+          showToast('Запись отменена');
+        }
+      });
+    });
+  }
+
+  // Функция обновления всех кнопок услуг
+  function updateAllServiceButtons() {
+    Object.keys(services).forEach(serviceId => {
+      const hasActiveAppointment = appointments.some(apt => 
+        apt.serviceId === serviceId && 
+        new Date(apt.date) > new Date()
+      );
+      updateServiceButton(serviceId, hasActiveAppointment);
+    });
+  }
+
+  // Инициализация
+  renderAppointments();
+  updateAllServiceButtons();
 }
 
 function initVault() {
@@ -1201,6 +1454,156 @@ function initSupport() {
       submitBtn.disabled = false;
     }, 2000);
   });
+
+  // Мобильное диалоговое окно для техподдержки
+  if (window.innerWidth <= 768) {
+    initMobileSupportModal();
+  }
+}
+
+function initMobileSupportModal() {
+  // Создаем кнопку для открытия мобильного диалога
+  const supportSection = document.getElementById('support');
+  if (!supportSection) return;
+
+  const mobileSupportBtn = document.createElement('button');
+  mobileSupportBtn.className = 'btn btn-primary';
+  mobileSupportBtn.style.cssText = `
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 999;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(239, 49, 36, 0.3);
+    display: none;
+    align-items: center;
+    justify-content: center;
+  `;
+  mobileSupportBtn.innerHTML = '?';
+  mobileSupportBtn.id = 'mobileSupportBtn';
+  
+  document.body.appendChild(mobileSupportBtn);
+
+  // Показываем кнопку только на мобильных
+  if (window.innerWidth <= 768) {
+    mobileSupportBtn.style.display = 'flex';
+  }
+
+  // Обработчик клика
+  mobileSupportBtn.addEventListener('click', showMobileSupportModal);
+
+  // Обработчик изменения размера окна
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 768) {
+      mobileSupportBtn.style.display = 'flex';
+    } else {
+      mobileSupportBtn.style.display = 'none';
+    }
+  });
+}
+
+function showMobileSupportModal() {
+  const modal = document.createElement('div');
+  modal.className = 'mobile-support-modal';
+  modal.innerHTML = `
+    <div class="mobile-support-content">
+      <div class="mobile-support-header">
+        <h3 class="mobile-support-title">Техподдержка</h3>
+        <button class="mobile-support-close">&times;</button>
+      </div>
+      <div class="mobile-support-body">
+        <div class="mobile-support-option" data-action="email">
+          <div class="mobile-support-option-icon">📧</div>
+          <div class="mobile-support-option-content">
+            <h4>Email поддержка</h4>
+            <p>support@alphabiz.ru</p>
+          </div>
+        </div>
+        <div class="mobile-support-option" data-action="phone">
+          <div class="mobile-support-option-icon">📞</div>
+          <div class="mobile-support-option-content">
+            <h4>Телефон</h4>
+            <p>+7 (495) 123-45-67</p>
+          </div>
+        </div>
+        <div class="mobile-support-option" data-action="chat">
+          <div class="mobile-support-option-icon">💬</div>
+          <div class="mobile-support-option-content">
+            <h4>Онлайн чат</h4>
+            <p>Доступен 24/7</p>
+          </div>
+        </div>
+        <div class="mobile-support-option" data-action="faq">
+          <div class="mobile-support-option-icon">❓</div>
+          <div class="mobile-support-option-content">
+            <h4>Часто задаваемые вопросы</h4>
+            <p>Быстрые ответы</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.classList.add('scroll-lock');
+
+  // Обработчики событий
+  const closeBtn = modal.querySelector('.mobile-support-close');
+  const options = modal.querySelectorAll('.mobile-support-option');
+
+  const closeModal = () => {
+    modal.remove();
+    document.body.classList.remove('scroll-lock');
+  };
+
+  closeBtn.addEventListener('click', closeModal);
+
+  options.forEach(option => {
+    option.addEventListener('click', () => {
+      const action = option.dataset.action;
+      
+      switch(action) {
+        case 'email':
+          window.location.href = 'mailto:support@alphabiz.ru';
+          break;
+        case 'phone':
+          window.location.href = 'tel:+74951234567';
+          break;
+        case 'chat':
+          // Открываем чат
+          const chatBtn = document.getElementById('chatToggleBtn');
+          if (chatBtn) chatBtn.click();
+          closeModal();
+          break;
+        case 'faq':
+          // Прокручиваем к FAQ
+          const faqSection = document.querySelector('.faq-list');
+          if (faqSection) {
+            faqSection.scrollIntoView({ behavior: 'smooth' });
+            closeModal();
+          }
+          break;
+      }
+    });
+  });
+
+  // Закрытие по клику на оверлей
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Закрытие по Escape
+  document.addEventListener('keydown', function escapeHandler(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  });
 }
 
 function initChatWidget() {
@@ -1306,8 +1709,8 @@ function initChatWidget() {
     if (sender === 'user') {
       messageCount++;
       if (!isOpen) {
-        chatBadge.textContent = messageCount;
-        chatBadge.style.display = 'flex';
+      // chatBadge.textContent = messageCount;
+      // chatBadge.style.display = 'flex';
       }
     }
   }
@@ -1366,7 +1769,7 @@ function initChatWidget() {
   // Имитация нового сообщения от AI (для демонстрации бейджа)
   setTimeout(() => {
     if (!isOpen) {
-      chatBadge.style.display = 'flex';
+      // chatBadge.style.display = 'flex';
     }
   }, 5000);
 }
