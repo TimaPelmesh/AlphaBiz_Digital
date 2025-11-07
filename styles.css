@@ -329,6 +329,7 @@ main {
   z-index: 4;
 }
 
+
 .hero-title {
   font-size: 3.5rem;
   font-weight: 800;
@@ -2780,7 +2781,8 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
   }
   
   .news-item,
-  .discussion-item {
+  .discussion-item,
+  .event-item {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
@@ -2789,6 +2791,11 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill {
   .news-action,
   .discussion-join {
     align-self: flex-start;
+  }
+
+  .event-join {
+    align-self: stretch;
+    width: 100%;
   }
 }
 
