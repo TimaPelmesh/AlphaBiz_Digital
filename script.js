@@ -727,6 +727,8 @@ async function initMeetings() {
 function initOffice() {
   const goalEl = document.getElementById('goal');
   const docsWrap = document.getElementById('docs');
+  const dateInput = document.getElementById('date');
+  const timeInput = document.getElementById('visitTime');
   const arBtn = document.getElementById('arGuideBtn');
   const arHint = document.getElementById('arHint');
   const appointmentsList = document.getElementById('appointmentsList');
@@ -765,6 +767,25 @@ function initOffice() {
   // Загружаем сохраненные записи
   let appointments = JSON.parse(localStorage.getItem('office_appointments') || '[]');
 
+  const goalServiceMap = {
+    open_ip_credit: ['ip', 'credit'],
+    open_ip: ['ip'],
+    credit: ['credit'],
+    consult_tax: ['tax']
+  };
+
+  appointments = appointments.map(appointment => ({
+    ...appointment,
+    linkedServices: appointment.linkedServices || (appointment.serviceId ? [appointment.serviceId] : [])
+  }));
+
+  function parseAppointmentDateTime(appointment) {
+    if (!appointment || !appointment.date) return null;
+    const timePart = appointment.time && appointment.time.length ? appointment.time : '00:00';
+    const dateTime = new Date(`${appointment.date}T${timePart}`);
+    return Number.isNaN(dateTime.getTime()) ? null : dateTime;
+  }
+
   goalEl.addEventListener('change', () => {
     docsWrap.innerHTML = '';
     const list = presets[goalEl.value] || [];
@@ -780,7 +801,8 @@ function initOffice() {
   visitForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const goal = goalEl.value;
-    const date = (document.getElementById('date').value || '').trim();
+    const date = (dateInput?.value || '').trim();
+    const time = (timeInput?.value || '').trim();
     if (!goal) {
       showToast('Выберите цель визита');
       goalEl.focus();
@@ -788,9 +810,38 @@ function initOffice() {
     }
     if (!date) {
       showToast('Укажите дату визита');
-      document.getElementById('date').focus();
+      dateInput?.focus();
       return;
     }
+    if (!time) {
+      showToast('Укажите время визита');
+      timeInput?.focus();
+      return;
+    }
+
+    const goalOption = goalEl.options[goalEl.selectedIndex];
+    const serviceName = goalOption ? goalOption.textContent : 'Визит в офис';
+    const linkedServices = goalServiceMap[goal] || [];
+    const docsSummary = Array.from(docsWrap.querySelectorAll('.chip')).map(chip => chip.textContent).join(', ');
+
+    const appointment = {
+      id: Date.now(),
+      serviceId: linkedServices[0] || null,
+      linkedServices,
+      serviceName,
+      date,
+      time,
+      duration: linkedServices[0] && services[linkedServices[0]] ? services[linkedServices[0]].duration : undefined,
+      notes: docsSummary,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    appointments.push(appointment);
+    localStorage.setItem('office_appointments', JSON.stringify(appointments));
+    renderAppointments();
+    updateAllServiceButtons();
+
     showToast('Запись создана. Документы будут готовы ко времени визита.');
     visitForm.reset();
     docsWrap.innerHTML = '';
@@ -809,10 +860,14 @@ function initOffice() {
       if (!service) return;
 
       // Проверяем, не записан ли уже пользователь на эту услугу
-      const existingAppointment = appointments.find(apt => 
-        apt.serviceId === serviceId && 
-        new Date(apt.date) > new Date()
-      );
+      const existingAppointment = appointments.find(apt => {
+        const relevantServices = apt.linkedServices && apt.linkedServices.length
+          ? apt.linkedServices
+          : (apt.serviceId ? [apt.serviceId] : []);
+        if (!relevantServices.includes(serviceId)) return false;
+        const appointmentDateTime = parseAppointmentDateTime(apt);
+        return appointmentDateTime && appointmentDateTime > new Date();
+      });
 
       if (existingAppointment) {
         showToast('Вы уже записаны на эту услугу');
@@ -898,6 +953,7 @@ function initOffice() {
       const appointment = {
         id: Date.now(),
         serviceId: serviceId,
+        linkedServices: [serviceId],
         serviceName: service.name,
         date: date,
         time: time,
@@ -936,8 +992,11 @@ function initOffice() {
 
   // Функция обновления кнопки услуги
   function updateServiceButton(serviceId, isBooked) {
+    if (!serviceId) return;
     const serviceItem = document.querySelector(`[data-service="${serviceId}"]`);
+    if (!serviceItem) return;
     const button = serviceItem.querySelector('.service-btn');
+    if (!button) return;
     
     if (isBooked) {
       button.textContent = 'Записано ✓';
@@ -962,7 +1021,14 @@ function initOffice() {
     }
 
     // Сортируем записи по дате
-    const sortedAppointments = appointments.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+    const sortedAppointments = [...appointments].sort((a, b) => {
+      const aDate = parseAppointmentDateTime(a) || (a.date ? new Date(a.date) : null);
+      const bDate = parseAppointmentDateTime(b) || (b.date ? new Date(b.date) : null);
+      if (!aDate && !bDate) return 0;
+      if (!aDate) return 1;
+      if (!bDate) return -1;
+      return aDate - bDate;
+    });
 
     sortedAppointments.forEach(appointment => {
       const appointmentEl = document.createElement('div');
@@ -971,16 +1037,20 @@ function initOffice() {
       const statusClass = appointment.status === 'confirmed' ? 'confirmed' : 'pending';
       const statusText = appointment.status === 'confirmed' ? 'Подтверждено' : 'Ожидает подтверждения';
       
-      const appointmentDate = new Date(appointment.date).toLocaleDateString('ru-RU', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      });
+      const appointmentDateObj = parseAppointmentDateTime(appointment);
+      const appointmentDate = appointmentDateObj
+        ? appointmentDateObj.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          })
+        : (appointment.date || '');
+      const appointmentTime = appointment.time || (appointmentDateObj ? appointmentDateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '');
 
       appointmentEl.innerHTML = `
         <div class="appointment-info">
           <div class="appointment-title">${appointment.serviceName}</div>
-          <div class="appointment-date">${appointmentDate}, ${appointment.time}</div>
+          <div class="appointment-date">${appointmentDate}${appointmentTime ? `, ${appointmentTime}` : ''}</div>
           <div class="appointment-status ${statusClass}">${statusText}</div>
           ${appointment.notes ? `<div class="appointment-notes">${appointment.notes}</div>` : ''}
         </div>
@@ -1013,10 +1083,14 @@ function initOffice() {
   // Функция обновления всех кнопок услуг
   function updateAllServiceButtons() {
     Object.keys(services).forEach(serviceId => {
-      const hasActiveAppointment = appointments.some(apt => 
-        apt.serviceId === serviceId && 
-        new Date(apt.date) > new Date()
-      );
+      const hasActiveAppointment = appointments.some(apt => {
+        const relevantServices = apt.linkedServices && apt.linkedServices.length
+          ? apt.linkedServices
+          : (apt.serviceId ? [apt.serviceId] : []);
+        if (!relevantServices.includes(serviceId)) return false;
+        const appointmentDateTime = parseAppointmentDateTime(apt);
+        return appointmentDateTime && appointmentDateTime > new Date();
+      });
       updateServiceButton(serviceId, hasActiveAppointment);
     });
   }
